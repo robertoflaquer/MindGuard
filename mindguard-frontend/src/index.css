@@ -1,0 +1,205 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── DARK MODE (default) ─────────────────────────────── */
+:root,
+[data-theme="dark"] {
+  --bg-deep:    #080F1E;
+  --bg-surface: #0D1829;
+  --bg-card:    #111F34;
+  --bg-raised:  #192B45;
+  --border:     rgba(255,255,255,0.07);
+  --border-mid: rgba(255,255,255,0.13);
+
+  /* CarePlus royal blue — adapted for dark backgrounds */
+  --accent:     #4A9EFF;
+  --accent-glow:rgba(74,158,255,0.15);
+  --accent-dim: #153060;
+  --accent-text:#060C16;
+
+  /* Aliases kept for backwards compat with existing components */
+  --jade:       var(--accent);
+  --jade-glow:  var(--accent-glow);
+  --jade-dim:   var(--accent-dim);
+
+  --text-pri:   #E6EDF7;
+  --text-sec:   #85A3C2;
+  --text-muted: #4B6480;
+
+  --stable:     #10B981;
+  --stable-bg:  rgba(16,185,129,0.13);
+  --attn:       #F59E0B;
+  --attn-bg:    rgba(245,158,11,0.13);
+  --elev:       #F97316;
+  --elev-bg:    rgba(249,115,22,0.13);
+  --danger:     #EF4444;
+  --danger-bg:  rgba(239,68,68,0.13);
+
+  --card-shadow: none;
+  --header-blur: rgba(8,15,30,0.85);
+}
+
+/* ─── LIGHT MODE ──────────────────────────────────────── */
+[data-theme="light"] {
+  --bg-deep:    #EFF4FC;
+  --bg-surface: #FFFFFF;
+  --bg-card:    #FFFFFF;
+  --bg-raised:  #E8F0FC;
+  --border:     rgba(21,101,192,0.10);
+  --border-mid: rgba(21,101,192,0.20);
+
+  /* CarePlus royal blue */
+  --accent:     #1565C0;
+  --accent-glow:rgba(21,101,192,0.10);
+  --accent-dim: #E3EDFF;
+  --accent-text:#FFFFFF;
+
+  --jade:       var(--accent);
+  --jade-glow:  var(--accent-glow);
+  --jade-dim:   var(--accent-dim);
+
+  --text-pri:   #0A1628;
+  --text-sec:   #3A5780;
+  --text-muted: #7A96BE;
+
+  --stable:     #0A8F62;
+  --stable-bg:  rgba(10,143,98,0.10);
+  --attn:       #B45309;
+  --attn-bg:    rgba(180,83,9,0.10);
+  --elev:       #C05020;
+  --elev-bg:    rgba(192,80,32,0.10);
+  --danger:     #C42020;
+  --danger-bg:  rgba(196,32,32,0.10);
+
+  --card-shadow: 0 2px 16px rgba(21,101,192,0.08), 0 1px 4px rgba(21,101,192,0.05);
+  --header-blur: rgba(239,244,252,0.88);
+}
+
+/* ─── BASE ────────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Nunito', system-ui, sans-serif;
+  background-color: var(--bg-deep);
+  color: var(--text-pri);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-raised); border-radius: 3px; }
+
+/* ─── COMPONENT LAYER ─────────────────────────────────── */
+@layer components {
+  .card {
+    @apply rounded-2xl p-6;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    box-shadow: var(--card-shadow);
+    transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .card-sm {
+    @apply rounded-xl p-4;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    box-shadow: var(--card-shadow);
+  }
+
+  .btn-primary {
+    @apply px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 cursor-pointer;
+    background: var(--accent);
+    color: var(--accent-text);
+  }
+  .btn-primary:hover:not(:disabled) {
+    filter: brightness(1.10);
+    box-shadow: 0 4px 20px var(--accent-glow);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active:not(:disabled) { transform: translateY(0); filter: brightness(1.05); }
+  .btn-primary:disabled { opacity: 0.38; cursor: not-allowed; }
+
+  .btn-ghost {
+    @apply px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-150 cursor-pointer;
+    color: var(--text-sec);
+  }
+  .btn-ghost:hover {
+    background: var(--bg-raised);
+    color: var(--text-pri);
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200;
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-mid);
+    color: var(--text-pri);
+    outline: none;
+  }
+  .input-field::placeholder { color: var(--text-muted); }
+  .input-field:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  select.input-field {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234B6480' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+  }
+  select.input-field option { background: var(--bg-card); }
+
+  textarea.input-field { resize: vertical; min-height: 90px; }
+
+  .label {
+    @apply block text-xs font-bold mb-2 uppercase tracking-widest;
+    color: var(--text-muted);
+  }
+
+  .text-error { color: var(--danger); @apply text-sm; }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold;
+  }
+}
+
+/* ─── ANIMATIONS ──────────────────────────────────────── */
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(14px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in { animation: slide-in 0.2s ease-out; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.4s ease-out; }
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1);    opacity: 0.18; }
+  50%       { transform: scale(1.10); opacity: 0.07; }
+}
+@keyframes breathe2 {
+  0%, 100% { transform: scale(1);    opacity: 0.10; }
+  50%       { transform: scale(1.18); opacity: 0.03; }
+}
+.ring-breathe  { animation: breathe  4s ease-in-out infinite; }
+.ring-breathe2 { animation: breathe2 6.5s ease-in-out infinite; }
+
+@keyframes pulse-dark {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+.animate-pulse-dark { animation: pulse-dark 1.6s ease-in-out infinite; }
+
+/* ─── THEME TRANSITION ───────────────────────────────── */
+.card, .btn-ghost, .input-field, header, main {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}

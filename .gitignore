@@ -1,0 +1,51 @@
+# ── Dependências ─────────────────────────────────────────────────
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+env/
+
+# ── Variáveis de ambiente (NUNCA commitar arquivos .env reais) ───
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ── Build / dist ─────────────────────────────────────────────────
+dist/
+build/
+.vite/
+*.egg-info/
+
+# ── Banco de dados local ─────────────────────────────────────────
+postgres_data/
+*.sql.bak
+
+# ── Logs ─────────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+
+# ── Sistema operacional ───────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDEs ─────────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ── Obsidian workspace (configuração local, não é código) ─────────
+mindguard-obsidian/.obsidian/workspace.json
+mindguard-obsidian/.obsidian/cache
+
+# ── Arquivos de teste/geração temporária ─────────────────────────
+entrega-sprint3/Q2-Cronograma.xlsx

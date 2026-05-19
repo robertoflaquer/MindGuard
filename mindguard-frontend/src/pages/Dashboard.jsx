@@ -1,0 +1,422 @@
+// src/pages/Dashboard.jsx
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '../store/useAuthStore'
+import { useRiskStore } from '../store/useRiskStore'
+import { useSignalStore } from '../store/useSignalStore'
+import { useQuestionnaireStore } from '../store/useQuestionnaireStore'
+import { useToastStore } from '../store/useToastStore'
+import {
+  LogOut,
+  AlertTriangle,
+  Activity,
+  ClipboardList,
+  ChevronRight,
+  Layers,
+  Sun,
+  Moon,
+  Stethoscope,
+  Video,
+  ScrollText,
+} from 'lucide-react'
+import { useThemeStore } from '../store/useThemeStore'
+import RiskCard from '../components/RiskCard'
+import SignalForm from '../components/SignalForm'
+import SignalChart from '../components/SignalChart'
+import { formatDistanceToNow } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+import api from '../services/api'
+
+const Q_META = {
+  PSS:           { label: 'PSS-10',   color: '#818CF8', getLevelText: (s) => s <= 13 ? 'Baixo' : s <= 26 ? 'Moderado' : 'Elevado' },
+  CBI:           { label: 'CBI',      color: '#FB923C', getLevelText: (s) => s <= 28 ? 'Baixo' : s <= 50 ? 'Moderado' : 'Elevado' },
+  OLBI:          { label: 'OLBI',     color: '#C084FC', getLevelText: (s) => s <= 28 ? 'Baixo' : s <= 44 ? 'Moderado' : 'Elevado' },
+  DAILY_CHECKIN: { label: 'Check-in', color: '#2DD4BF', getLevelText: (s) => s <= 9  ? 'Bem'   : s <= 19 ? 'Moderado' : 'Difícil' },
+}
+
+const LEVEL_SCORE_COLOR = (level) => {
+  if (level === 'Baixo' || level === 'Bem') return 'var(--stable)'
+  if (level === 'Moderado') return 'var(--attn)'
+  return 'var(--danger)'
+}
+
+const RISK_LEVEL_LABELS = {
+  stable:        'Estável',
+  attention:     'Atenção',
+  elevated_risk: 'Risco Elevado',
+  high_risk:     'Risco Alto',
+}
+
+function MindGuardLogo() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 34 34" fill="none" aria-hidden>
+      <path d="M17 30C9 26 5 19.5 5 13a6 6 0 0 1 12-1 6 6 0 0 1 12 1c0 6.5-4 13.5-12 17z" fill="var(--jade)" opacity="0.9" />
+      <path d="M9 17h4l2-4.5 4.5 9 2.5-4.5H26" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function QuestionnaireCard({ q }) {
+  const meta = Q_META[q.code]
+  if (!meta) return null
+  const score = Number(q.total_score)
+  const max   = Number(q.max_score)
+  const pct   = Math.round((score / max) * 100)
+  const level = meta.getLevelText(score)
+  const scoreColor = LEVEL_SCORE_COLOR(level)
+
+  return (
+    <div
+      className="rounded-xl p-4 flex flex-col gap-2.5"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderTop: `2px solid ${meta.color}` }}
+    >
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: meta.color }}>{meta.label}</span>
+        <span className="text-xs font-semibold" style={{ color: scoreColor }}>{level}</span>
+      </div>
+
+      <div className="flex items-baseline gap-1">
+        <span className="text-2xl font-bold tabular-nums" style={{ color: 'var(--text-pri)' }}>{score}</span>
+        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>/{max}</span>
+      </div>
+
+      <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-raised)' }}>
+        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: scoreColor }} />
+      </div>
+
+      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+        {formatDistanceToNow(new Date(q.completed_at), { addSuffix: true, locale: ptBR })}
+      </p>
+    </div>
+  )
+}
+
+function SimulateWearableButton({ onDone }) {
+  const [loading, setLoading] = useState(false)
+  const [device, setDevice] = useState('apple_watch')
+
+  async function simulate() {
+    setLoading(true)
+    try {
+      await api.post('/api/signals/simulate', { device })
+      onDone?.()
+    } catch {
+      // ignore — wearable sim is demo only
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <select
+        value={device}
+        onChange={(e) => setDevice(e.target.value)}
+        className="input-field"
+        style={{ fontSize: '0.75rem', padding: '0.35rem 0.6rem', height: 'auto' }}
+      >
+        <option value="apple_watch">Apple Watch</option>
+        <option value="galaxy_watch">Galaxy Watch</option>
+      </select>
+      <button
+        onClick={simulate}
+        disabled={loading}
+        className="btn-ghost flex items-center gap-1.5 text-xs"
+        title="Simular leitura de wearable"
+        style={{ whiteSpace: 'nowrap' }}
+      >
+        <Activity className="w-3.5 h-3.5" />
+        {loading ? 'Importando…' : 'Simular Wearable'}
+      </button>
+    </div>
+  )
+}
+
+export default function Dashboard() {
+  const navigate = useNavigate()
+  const user     = useAuthStore((s) => s.user)
+  const logout   = useAuthStore((s) => s.logout)
+
+  const currentRisk    = useRiskStore((s) => s.currentRisk)
+  const isRiskLoading  = useRiskStore((s) => s.isLoading)
+  const fetchCurrentRisk = useRiskStore((s) => s.fetchCurrentRisk)
+
+  const signals           = useSignalStore((s) => s.signals)
+  const fetchRecentSignals = useSignalStore((s) => s.fetchRecentSignals)
+  const fetchSignalTypes   = useSignalStore((s) => s.fetchSignalTypes)
+
+  const { due, history, fetchDue, fetchHistory } = useQuestionnaireStore()
+  const addToast = useToastStore((s) => s.addToast)
+
+  const [activeTab, setActiveTab] = useState('overview')
+  const { isDark, toggle: toggleTheme } = useThemeStore()
+
+  useEffect(() => {
+    if (!user) { navigate('/login'); return }
+    fetchCurrentRisk()
+    fetchRecentSignals()
+    fetchSignalTypes()
+    fetchDue()
+    fetchHistory(null, 20)
+  }, [])
+
+  useEffect(() => {
+    if (activeTab === 'overview') fetchCurrentRisk()
+  }, [activeTab])
+
+  const dueCount = due.filter((q) => q.is_due).length
+
+  const latestByType = Object.values(
+    history.reduce((acc, h) => { if (!acc[h.code]) acc[h.code] = h; return acc }, {})
+  )
+
+  const handleLogout = () => { logout(); navigate('/login') }
+
+  return (
+    <div className="min-h-screen" style={{ background: 'var(--bg-deep)' }}>
+      {/* Header */}
+      <header className="sticky top-0 z-30" style={{ background: 'var(--header-blur)', backdropFilter: 'blur(16px)', borderBottom: '1px solid var(--border)' }}>
+        <div className="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <MindGuardLogo />
+            <span className="text-lg font-bold" style={{ fontFamily: 'Nunito, system-ui, sans-serif', fontWeight: 800, color: 'var(--text-pri)' }}>
+              MindGuard
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => navigate('/treatment')}
+              className="btn-ghost flex items-center gap-1.5 text-sm"
+            >
+              <Stethoscope className="w-4 h-4" />
+              <span className="hidden sm:inline">Tratamento</span>
+            </button>
+            <button
+              onClick={() => navigate('/prescriptions')}
+              className="btn-ghost flex items-center gap-1.5 text-sm"
+            >
+              <ScrollText className="w-4 h-4" />
+              <span className="hidden sm:inline">Prescrições</span>
+            </button>
+
+            <button
+              onClick={() => navigate('/contexts')}
+              className="btn-ghost flex items-center gap-1.5 text-sm"
+            >
+              <Layers className="w-4 h-4" />
+              <span className="hidden sm:inline">Contextos</span>
+            </button>
+
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="btn-ghost p-2 rounded-xl"
+              title={isDark ? 'Modo claro' : 'Modo escuro'}
+            >
+              {isDark
+                ? <Sun  className="w-4 h-4" style={{ color: 'var(--attn)' }} />
+                : <Moon className="w-4 h-4" style={{ color: 'var(--accent)' }} />
+              }
+            </button>
+
+            <div className="w-px h-5 mx-0.5" style={{ background: 'var(--border-mid)' }} />
+
+            <div className="text-right hidden sm:block">
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Olá,</p>
+              <p className="text-sm font-bold leading-tight" style={{ color: 'var(--text-pri)' }}>{user?.fullName}</p>
+            </div>
+
+            <button onClick={handleLogout} className="btn-ghost flex items-center gap-1.5 text-sm ml-0.5">
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Sair</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-5 py-8">
+        {/* Pending questionnaires banner */}
+        {dueCount > 0 && (
+          <button
+            onClick={() => navigate('/questionnaires')}
+            className="w-full mb-6 flex items-center justify-between gap-3 px-5 py-3.5 rounded-xl transition-all"
+            style={{ background: 'var(--jade-glow)', border: '1px solid rgba(45,212,191,0.25)', color: 'var(--jade)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(45,212,191,0.18)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--jade-glow)' }}
+          >
+            <div className="flex items-center gap-3">
+              <ClipboardList className="w-4 h-4 flex-shrink-0" />
+              <p className="text-sm font-medium text-left">
+                {dueCount} questionário{dueCount > 1 ? 's' : ''} pendente{dueCount > 1 ? 's' : ''} — responda para melhorar a precisão da análise.
+              </p>
+            </div>
+            <ChevronRight className="w-4 h-4 flex-shrink-0" />
+          </button>
+        )}
+
+        {/* Tabs */}
+        <div className="flex gap-1 mb-8 p-1 rounded-xl w-fit" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+          {[
+            { key: 'overview', label: 'Visão Geral' },
+            { key: 'signals',  label: 'Registrar Sinais' },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              className="px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200"
+              style={
+                activeTab === key
+                  ? { background: 'var(--bg-raised)', color: 'var(--text-pri)', boxShadow: '0 1px 4px rgba(0,0,0,0.3)' }
+                  : { color: 'var(--text-muted)' }
+              }
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <div className="space-y-8 animate-fade-up">
+            {/* Risk Status */}
+            <section>
+              <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)' }}>
+                Status de Risco
+              </p>
+              {isRiskLoading ? (
+                <RiskCard isLoading />
+              ) : currentRisk ? (
+                <RiskCard risk={currentRisk} />
+              ) : (
+                <div className="card text-center py-10">
+                  <AlertTriangle className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
+                  <p className="text-sm" style={{ color: 'var(--text-sec)' }}>
+                    Nenhuma avaliação de risco ainda. Registre alguns sinais para começar.
+                  </p>
+                </div>
+              )}
+            </section>
+
+            {/* Questionnaire summaries */}
+            {latestByType.length > 0 && (
+              <section>
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                    Questionários Recentes
+                  </p>
+                  <button
+                    onClick={() => navigate('/questionnaires')}
+                    className="flex items-center gap-1 text-xs font-semibold transition-colors"
+                    style={{ color: 'var(--jade)' }}
+                  >
+                    Ver todos <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {latestByType.map((q) => <QuestionnaireCard key={q.code} q={q} />)}
+                </div>
+              </section>
+            )}
+
+            {/* Treatment CTA */}
+            <section style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <button
+                onClick={() => navigate('/treatment')}
+                className="w-full text-left rounded-2xl p-5 flex items-center gap-4 transition-all group"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: '3px solid var(--accent)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.background = 'var(--bg-raised)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.borderLeft = '3px solid var(--accent)'; e.currentTarget.style.background = 'var(--bg-card)' }}
+              >
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(74,158,255,0.12)' }}>
+                  <Video className="w-5 h-5" style={{ color: 'var(--accent)' }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm" style={{ color: 'var(--text-pri)' }}>Agendar Consulta</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                    Psiquiatra, psicólogo ou terapeuta · Videochamada · 45 min
+                  </p>
+                </div>
+                <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
+              </button>
+              <button
+                onClick={() => navigate('/prescriptions')}
+                className="w-full text-left rounded-2xl p-5 flex items-center gap-4 transition-all group"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: '3px solid var(--stable)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-raised)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-card)' }}
+              >
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(45,212,191,0.12)' }}>
+                  <ScrollText className="w-5 h-5" style={{ color: 'var(--stable)' }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm" style={{ color: 'var(--text-pri)' }}>Prescrições</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                    Receitas digitais com auditoria SHA-256
+                  </p>
+                </div>
+                <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
+              </button>
+            </section>
+
+            {/* Signal chart */}
+            <section>
+              {signals?.length > 0 ? (
+                <SignalChart signals={signals} />
+              ) : (
+                <div className="card text-center py-10">
+                  <Activity className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
+                  <p className="text-sm" style={{ color: 'var(--text-sec)' }}>
+                    Nenhum sinal registrado ainda. Registre alguns para começar.
+                  </p>
+                </div>
+              )}
+            </section>
+          </div>
+        )}
+
+        {/* Signals Tab */}
+        {activeTab === 'signals' && (
+          <div className="animate-fade-up">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                Registrar Sinais
+              </p>
+              <SimulateWearableButton onDone={() => {
+                fetchRecentSignals()
+                addToast('info', 'Dados do wearable importados! Calculando risco...')
+                setTimeout(async () => {
+                  try {
+                    const updated = await fetchCurrentRisk()
+                    if (updated) {
+                      const label = RISK_LEVEL_LABELS[updated.risk_level] || updated.risk_level
+                      addToast('success', `Risco atualizado: ${label} (${Math.round(updated.risk_score ?? 0)}%)`)
+                    }
+                  } catch { /* silent */ }
+                }, 5000)
+              }} />
+            </div>
+            <SignalForm
+              onSuccess={async () => {
+                fetchRecentSignals()
+                addToast('info', 'Sinais registrados! Calculando análise de risco...')
+                setTimeout(async () => {
+                  try {
+                    const updated = await fetchCurrentRisk()
+                    if (updated) {
+                      const label = RISK_LEVEL_LABELS[updated.risk_level] || updated.risk_level
+                      const score = Math.round(updated.risk_score ?? 0)
+                      addToast('success', `Risco atualizado: ${label} (${score}%)`)
+                    }
+                  } catch {
+                    addToast('error', 'Não foi possível atualizar o risco. Tente novamente.')
+                  }
+                }, 5000)
+              }}
+            />
+          </div>
+        )}
+      </main>
+    </div>
+  )
+}

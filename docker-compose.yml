@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: mindguard
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-MindGuard2024!}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./mindguard-backend/src/database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./mindguard-backend/src/database/add_appointments_prescriptions.sql:/docker-entrypoint-initdb.d/02_appointments.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./mindguard-backend
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: mindguard
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-MindGuard2024!}
+      JWT_SECRET: ${JWT_SECRET:-change-this-in-production-32chars}
+      JWT_EXPIRES_IN: 7d
+      PYTHON_ENGINE_URL: http://python:8000
+      CORS_ORIGIN: http://localhost:3001
+      NODE_ENV: production
+      PORT: 3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  python:
+    build: ./mindguard-python
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: mindguard
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-MindGuard2024!}
+      BASELINE_MIN_DAYS: 7
+      DEVIATION_THRESHOLD: 15.0
+      HIGH_RISK_THRESHOLD: 70.0
+      ATTENTION_THRESHOLD: 40.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build: ./mindguard-frontend
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

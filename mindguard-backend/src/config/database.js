@@ -7,25 +7,24 @@ dotenv.config();
 
 const { Pool } = pg;
 
-// PostgreSQL connection pool
-// Railway provides DATABASE_PRIVATE_URL automatically when PostgreSQL is in the same project
-const poolConfig = process.env.DATABASE_PRIVATE_URL || process.env.DATABASE_URL
-  ? {
-      connectionString: process.env.DATABASE_PRIVATE_URL || process.env.DATABASE_URL,
-      ssl: process.env.DATABASE_PRIVATE_URL ? false : { rejectUnauthorized: false },
-      max: 20,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 5000,
-    }
+// Priority order:
+// 1. DATABASE_PRIVATE_URL — Railway internal connection string (fastest, no SSL)
+// 2. DATABASE_URL — Railway external connection string (needs SSL)
+// 3. PGHOST etc. — Railway PostgreSQL plugin auto-injects these into all project services
+// 4. DB_HOST etc. — local .env fallback
+const base = { max: 20, idleTimeoutMillis: 30000, connectionTimeoutMillis: 10000 };
+
+const poolConfig = process.env.DATABASE_PRIVATE_URL
+  ? { ...base, connectionString: process.env.DATABASE_PRIVATE_URL }
+  : process.env.DATABASE_URL
+  ? { ...base, connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } }
   : {
-      host: process.env.DB_HOST,
-      port: process.env.DB_PORT,
-      database: process.env.DB_NAME,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      max: 20,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 5000,
+      ...base,
+      host:     process.env.PGHOST     || process.env.DB_HOST,
+      port:     process.env.PGPORT     || process.env.DB_PORT,
+      database: process.env.PGDATABASE || process.env.DB_NAME,
+      user:     process.env.PGUSER     || process.env.DB_USER,
+      password: process.env.PGPASSWORD || process.env.DB_PASSWORD,
     };
 
 const pool = new Pool(poolConfig);

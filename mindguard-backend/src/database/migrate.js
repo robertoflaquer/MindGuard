@@ -9,13 +9,19 @@ dotenv.config();
 const { Pool } = pg;
 const __dir = dirname(fileURLToPath(import.meta.url));
 
-const pool = new Pool({
-  host:     process.env.DB_HOST     || 'localhost',
-  port:     process.env.DB_PORT     || 5433,
-  database: process.env.DB_NAME     || 'mindguard',
-  user:     process.env.DB_USER     || 'postgres',
-  password: process.env.DB_PASSWORD,
-});
+const pool = new Pool(
+  process.env.DATABASE_PRIVATE_URL
+    ? { connectionString: process.env.DATABASE_PRIVATE_URL }
+    : process.env.DATABASE_URL
+    ? { connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } }
+    : {
+        host:     process.env.PGHOST     || process.env.DB_HOST     || 'localhost',
+        port:     process.env.PGPORT     || process.env.DB_PORT     || 5432,
+        database: process.env.PGDATABASE || process.env.DB_NAME     || 'mindguard',
+        user:     process.env.PGUSER     || process.env.DB_USER     || 'postgres',
+        password: process.env.PGPASSWORD || process.env.DB_PASSWORD,
+      }
+);
 
 const sql = readFileSync(join(__dir, 'schema.sql'), 'utf8');
 

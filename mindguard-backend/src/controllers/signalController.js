@@ -89,8 +89,12 @@ class SignalController {
       });
 
       triggerBaselineCalculation(userId)
-        .catch(() => {})
-        .finally(() => triggerRiskCalculation(userId).catch(() => {}));
+        .catch((err) => logger.warn({ userId, err: err.message }, 'Baseline calc failed'))
+        .finally(() => {
+          triggerRiskCalculation(userId).catch((err) =>
+            logger.warn({ userId, err: err.message }, 'Risk calc failed')
+          );
+        });
     } catch (error) {
       next(error);
     }

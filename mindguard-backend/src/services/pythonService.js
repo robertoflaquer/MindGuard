@@ -2,7 +2,8 @@ import axios from 'axios';
 import logger from '../config/logger.js';
 
 const client = axios.create({
-  baseURL: process.env.PYTHON_ENGINE_URL || 'http://localhost:8000',
+  // PYTHON_API_URL is the Railway variable name; PYTHON_ENGINE_URL is the docker-compose name
+  baseURL: process.env.PYTHON_API_URL || process.env.PYTHON_ENGINE_URL || 'http://localhost:8000',
   timeout: 30000,
 });
 

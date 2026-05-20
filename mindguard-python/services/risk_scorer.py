@@ -508,7 +508,7 @@ class RiskScorer:
         result = db.execute_query(query, (
             user_id, risk_level_id, risk_score, confidence_level,
             json.dumps(contributing_signals), convergence_count,
-            primary_explanation, secondary_factors,
+            primary_explanation, json.dumps(secondary_factors),
             recommended_action, requires_professional_review,
         ))
 

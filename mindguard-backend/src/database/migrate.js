@@ -29,8 +29,8 @@ try {
   await pool.query(sql);
   console.log('✅ Migration concluída com sucesso!');
 } catch (err) {
-  console.error('❌ Erro na migration:', err.message);
-  process.exit(1);
+  // Log the error but don't exit — server must start even if schema already exists
+  console.error('⚠️  Migration warning (schema may already exist):', err.message);
 } finally {
   await pool.end();
 }

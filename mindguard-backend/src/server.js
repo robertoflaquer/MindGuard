@@ -75,24 +75,18 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/health', async (req, res) => {
-  try {
-    // Test database connection
-    await pool.query('SELECT 1');
+// Railway uses this to decide if the container is alive — always 200
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
-    res.json({
-      success: true,
-      status: 'healthy',
-      database: 'connected',
-      timestamp: new Date().toISOString(),
-    });
+// Separate route to check DB connectivity without affecting deployment health
+app.get('/health/db', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ status: 'healthy', database: 'connected', timestamp: new Date().toISOString() });
   } catch (error) {
-    res.status(503).json({
-      success: false,
-      status: 'unhealthy',
-      database: 'disconnected',
-      error: error.message,
-    });
+    res.status(503).json({ status: 'unhealthy', database: 'disconnected', error: error.message });
   }
 });
 

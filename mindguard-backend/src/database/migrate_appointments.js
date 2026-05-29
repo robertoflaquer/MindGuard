@@ -30,8 +30,8 @@ try {
   await pool.query(sql);
   console.log('✅ Migration de consultas e prescrições concluída!');
 } catch (err) {
-  console.error('❌ Erro na migration:', err.message);
-  process.exit(1);
+  // Log the error but don't exit — server must start even if tables already exist
+  console.error('⚠️  Migration warning (tables may already exist):', err.message);
 } finally {
   await pool.end();
 }

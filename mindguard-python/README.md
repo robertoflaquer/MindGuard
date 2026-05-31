@@ -33,25 +33,37 @@ DB_PORT=5433
 DB_NAME=mindguard
 DB_USER=postgres
 DB_PASSWORD=MindGuard!
+
+# Algoritmo de baseline
 BASELINE_MIN_DAYS=7
 BASELINE_MAX_DAYS=14
 DEVIATION_THRESHOLD=15.0
+
+# Thresholds de risco (0–100)
+HIGH_RISK_THRESHOLD=70
+ATTENTION_THRESHOLD=40
 ```
 
 ## Execução
 
 ```bash
+# Desenvolvimento (hot reload)
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+# Produção (mesma forma usada no Railway)
+python main.py
 ```
 
 Engine disponível em `http://localhost:8000`.
+
+> Em produção, `main.py` lê `PORT` do ambiente (`os.environ.get("PORT", 8000)`). O Railway injeta essa variável automaticamente.
 
 ## Endpoints
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
 | GET | `/` | Status do serviço |
-| GET | `/health` | Health check + DB |
+| GET | `/health` | Health check (usado pelo Railway) |
 | POST | `/baseline/calculate` | Calcular baselines do usuário |
 | GET | `/baseline/{user_id}` | Consultar baselines atuais |
 | POST | `/risk/calculate` | Calcular pontuação de risco |

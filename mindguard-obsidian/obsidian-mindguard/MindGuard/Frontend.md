@@ -68,7 +68,9 @@ import axios from 'axios'
 import { useAuthStore } from '../store/useAuthStore'
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000',
+  // Em dev, VITE_API_URL fica vazio e o Vite proxy resolve /api → http://localhost:3000
+  // Em produção (Railway), VITE_API_URL é a URL absoluta do backend
+  baseURL: import.meta.env.VITE_API_URL || '',
   timeout: 10000
 })
 

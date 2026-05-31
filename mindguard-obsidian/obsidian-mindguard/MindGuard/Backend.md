@@ -46,6 +46,17 @@ mindguard-backend/
 
 ---
 
+## Health Checks
+
+| Rota | Comportamento | Uso |
+|------|---------------|-----|
+| `GET /health` | Sempre retorna `200 OK` (não depende do banco) | Railway healthcheck — evita derrubar o container quando o banco está reiniciando |
+| `GET /health/db` | `200 OK` se conectar, `503` se desconectar | Diagnóstico real da conexão PostgreSQL |
+
+> A separação foi feita após problemas no Railway: o healthcheck antigo retornava `503` quando o banco demorava a subir, e o Railway interpretava isso como container morto e cancelava o deploy.
+
+---
+
 ## Endpoints Principais
 
 ### Auth (`/api/auth`)

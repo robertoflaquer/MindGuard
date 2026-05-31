@@ -206,6 +206,14 @@ Abrir http://localhost:3001 no navegador
 
 Tudo verde = ✅ Sistema pronto!
 
+---
+
+## Deploy em produção
+
+Este guia cobre apenas o ambiente local. Para subir o MindGuard em produção (Railway, com HTTPS e PostgreSQL gerenciado), siga o tutorial em [[RAILWAY]] (arquivo `RAILWAY.md` no raiz do projeto).
+
+Resumo: 1 projeto Railway com 4 serviços (PostgreSQL + Backend + Python + Frontend). O `DATABASE_PRIVATE_URL` é injetado automaticamente entre serviços do mesmo projeto.
+
 [[Backend]]
 [[Database]]
 [[Arquitetura]]

@@ -27,10 +27,19 @@ npm install
 ## Execução
 
 ```bash
-npm run dev     # desenvolvimento — http://localhost:3001
-npm run build   # build de produção
-npm run preview # preview do build
+npm run dev      # desenvolvimento — http://localhost:3001
+npm run build    # build de produção (gera dist/)
+npm run preview  # preview do build (vite preview)
+npm start        # serve o build com `serve` na porta $PORT — usado no Railway
 ```
+
+## Variáveis de ambiente
+
+| Variável | Onde usar | Para quê |
+|----------|-----------|----------|
+| `VITE_API_URL` | Build do React | URL absoluta do backend (ex.: `https://mindguard-backend-xxxx.up.railway.app`). Em dev, deixar vazio usa o proxy do Vite para `http://localhost:3000` |
+
+> ⚠️ `VITE_API_URL` é resolvida **no build**, não em runtime. Ao mudar essa variável no Railway, é obrigatório fazer **Redeploy** do serviço Frontend para o novo valor entrar em vigor.
 
 ## Páginas
 

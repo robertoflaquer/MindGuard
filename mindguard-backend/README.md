@@ -39,36 +39,55 @@ JWT_SECRET=sua_chave_secreta
 ## Banco de dados
 
 ```bash
-# Schema principal
+# Schema principal (cria todas as tabelas básicas)
 npm run migrate
+# equivalente a: node src/database/migrate.js
 
 # Tabelas de agendamentos e prescrições
 node src/database/migrate_appointments.js
 ```
 
+> Em produção (Railway), as migrations rodam automaticamente no `startCommand` do `railway.toml`. Se uma tabela já existir, a migration loga um aviso e segue — o servidor sobe normalmente (idempotente).
+
 ## Execução
 
 ```bash
-npm run dev    # desenvolvimento (nodemon)
-npm start      # produção
+npm run dev    # desenvolvimento (nodemon, com hot reload)
+npm start      # produção (node direto)
 ```
 
 API disponível em `http://localhost:3000`.
+
+## Health checks
+
+| Rota | O que faz |
+|------|-----------|
+| `GET /health` | Sempre retorna `200 OK` — usado pelo Railway para saber se o container está vivo |
+| `GET /health/db` | Testa conexão com PostgreSQL. Retorna `503` se desconectado |
 
 ## Endpoints principais
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| POST | `/api/auth/login` | Login |
 | POST | `/api/auth/register` | Cadastro |
-| GET | `/api/signals` | Listar sinais do usuário |
-| POST | `/api/signals` | Registrar sinal |
-| POST | `/api/signals/simulate` | Simular wearable |
+| POST | `/api/auth/login` | Login |
+| GET | `/api/auth/profile` | Perfil do usuário autenticado |
+| POST | `/api/signals/batch` | Registrar lote de sinais |
+| POST | `/api/signals/simulate` | Simular dados de wearable |
+| GET | `/api/signals/recent` | Sinais recentes do usuário |
 | GET | `/api/risk/current` | Risco atual |
+| GET | `/api/risk/history` | Histórico de avaliações |
+| POST | `/api/questionnaires/submit` | Enviar questionário (PSS, GAD-7, etc.) |
+| GET | `/api/contexts/active` | Contextos de vida ativos |
 | GET | `/api/appointments` | Listar agendamentos |
 | POST | `/api/appointments` | Criar agendamento |
 | GET | `/api/prescriptions` | Listar prescrições |
-| POST | `/api/questionnaires` | Enviar questionário |
+
+## Deploy
+
+Para subir no Railway, veja [`RAILWAY.md`](../RAILWAY.md) no raiz do projeto. No Railway, o `DATABASE_PRIVATE_URL` é injetado automaticamente quando o PostgreSQL está no mesmo projeto — não precisa configurar `DB_HOST`/`DB_PORT` etc.
+
+A variável `PYTHON_API_URL` aponta para o serviço do Python Engine (ex.: `https://mindguard-python-xxxx.up.railway.app`).
 
 ## Estrutura
 

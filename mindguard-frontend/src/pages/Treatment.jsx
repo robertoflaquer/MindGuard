@@ -9,9 +9,9 @@ import { ptBR } from 'date-fns/locale'
 
 function MindGuardLogo() {
   return (
-    <svg width="26" height="26" viewBox="0 0 34 34" fill="none" aria-hidden>
-      <path d="M17 30C9 26 5 19.5 5 13a6 6 0 0 1 12-1 6 6 0 0 1 12 1c0 6.5-4 13.5-12 17z" fill="var(--jade)" opacity="0.9" />
-      <path d="M9 17h4l2-4.5 4.5 9 2.5-4.5H26" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M9.5 4A2.5 2.5 0 0 1 12 6.5v11a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 4Z" fill="var(--jade)" />
+      <path d="M14.5 4A2.5 2.5 0 0 0 12 6.5v11a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 4Z" fill="var(--jade)" fillOpacity="0.78" />
     </svg>
   )
 }

@@ -9,9 +9,9 @@ import {
 
 function MindGuardLogo({ size = 40 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 34 34" fill="none" aria-hidden>
-      <path d="M17 30C9 26 5 19.5 5 13a6 6 0 0 1 12-1 6 6 0 0 1 12 1c0 6.5-4 13.5-12 17z" fill="var(--jade)" opacity="0.9" />
-      <path d="M9 17h4l2-4.5 4.5 9 2.5-4.5H26" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M9.5 4A2.5 2.5 0 0 1 12 6.5v11a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 4Z" fill="var(--jade)" />
+      <path d="M14.5 4A2.5 2.5 0 0 0 12 6.5v11a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 4Z" fill="var(--jade)" fillOpacity="0.78" />
     </svg>
   )
 }
@@ -56,9 +56,9 @@ export default function Welcome() {
           <a href="#como-funciona" className="hidden sm:inline text-sm px-3 py-2 rounded-lg hover:bg-white/5 transition" style={{ color: 'var(--text-muted)' }}>
             Como funciona
           </a>
-          <a href="#para-empresas" className="hidden sm:inline text-sm px-3 py-2 rounded-lg hover:bg-white/5 transition" style={{ color: 'var(--text-muted)' }}>
+          <Link to="/empresa" className="hidden sm:inline text-sm px-3 py-2 rounded-lg hover:bg-white/5 transition" style={{ color: 'var(--text-muted)' }}>
             Para empresas
-          </a>
+          </Link>
           <Link to="/login" className="text-sm px-4 py-2 rounded-lg hover:bg-white/5 transition" style={{ color: 'var(--text-pri)' }}>
             Entrar
           </Link>
@@ -190,12 +190,16 @@ export default function Welcome() {
               <p className="text-base leading-relaxed mb-6" style={{ color: 'var(--text-muted)' }}>
                 Integração nativa com o cadastro de beneficiários CarePlus. RH e medicina ocupacional recebem indicadores agregados e anônimos — sem ferir privacidade individual.
               </p>
-              <ul className="space-y-3 text-sm">
+              <ul className="space-y-3 text-sm mb-6">
                 <Bullet>Indicadores agregados por unidade, departamento e cargo</Bullet>
+                <Bullet>Bot nativo no Microsoft Teams para check-in diário</Bullet>
                 <Bullet>Encaminhamento automático para a rede CarePlus quando risco é alto</Bullet>
                 <Bullet>Prescrições digitais com auditoria SHA-256</Bullet>
-                <Bullet>Agendamento direto com psicólogos, psiquiatras e terapeutas</Bullet>
               </ul>
+              <Link to="/empresa" className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl transition" style={{ background: 'var(--jade)', color: '#001b18' }}>
+                Ver dashboard executivo
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <MiniMetric icon={<Heart className="w-5 h-5" />} label="Colaboradores monitorados" value="—" />

@@ -10,6 +10,7 @@ import Questionnaires from './pages/Questionnaires'
 import Contexts from './pages/Contexts'
 import Treatment from './pages/Treatment'
 import Prescriptions from './pages/Prescriptions'
+import Enterprise from './pages/Enterprise'
 import Toast from './components/Toast'
 import ErrorBoundary from './components/ErrorBoundary'
 
@@ -81,6 +82,7 @@ export default function App() {
               </PrivateRoute>
             }
           />
+          <Route path="/empresa" element={<Enterprise />} />
           <Route path="/" element={<HomeRoute />} />
         </Routes>
         <Toast />

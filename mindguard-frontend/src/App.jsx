@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAuthStore } from './store/useAuthStore'
+import Welcome from './pages/Welcome'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
@@ -17,6 +18,14 @@ function PrivateRoute({ children }) {
   const initialized = useAuthStore((state) => state.initialized)
   if (!initialized) return null
   return user ? children : <Navigate to="/login" />
+}
+
+// Mostra Welcome para deslogados; vai direto para Dashboard se já autenticado
+function HomeRoute() {
+  const user = useAuthStore((state) => state.user)
+  const initialized = useAuthStore((state) => state.initialized)
+  if (!initialized) return null
+  return user ? <Navigate to="/dashboard" /> : <Welcome />
 }
 
 export default function App() {
@@ -72,7 +81,7 @@ export default function App() {
               </PrivateRoute>
             }
           />
-          <Route path="/" element={<Navigate to="/dashboard" />} />
+          <Route path="/" element={<HomeRoute />} />
         </Routes>
         <Toast />
       </Router>

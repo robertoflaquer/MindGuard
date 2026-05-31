@@ -73,6 +73,28 @@ export const useAuthStore = create((set) => ({
     }
   },
 
+  loginDemo: async () => {
+    set({ isLoading: true, error: null })
+    try {
+      const { data } = await api.post('/api/auth/demo')
+
+      localStorage.setItem('token', data.data.token)
+      localStorage.setItem('user', JSON.stringify(data.data.user))
+
+      set({
+        token: data.data.token,
+        user: data.data.user,
+        isLoading: false,
+      })
+
+      return data.data
+    } catch (error) {
+      const message = error.response?.data?.error || 'Não foi possível iniciar o modo demonstração'
+      set({ error: message, isLoading: false })
+      throw error
+    }
+  },
+
   logout: () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')

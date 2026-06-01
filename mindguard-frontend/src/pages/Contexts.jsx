@@ -339,8 +339,8 @@ export default function Contexts() {
             por exemplo, não indica o mesmo risco que em um dia normal.
           </p>
           <p className="mt-2">
-            Esses contextos ainda não afetam o cálculo de risco diretamente, mas ficarão
-            disponíveis para enriquecer a análise futuramente.
+            O algoritmo de risco ajusta dinamicamente os pesos de cada sinal conforme
+            os contextos ativos, evitando falsos alertas em situações esperadas.
           </p>
         </div>
       </main>

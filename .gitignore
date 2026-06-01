@@ -47,5 +47,21 @@ desktop.ini
 mindguard-obsidian/.obsidian/workspace.json
 mindguard-obsidian/.obsidian/cache
 
-# ── Arquivos de teste/geração temporária ─────────────────────────
-entrega-sprint3/Q2-Cronograma.xlsx
+# ── Documentos da entrega FIAP (fora do escopo do produto público) ──
+entrega-sprint3/
+*.zip
+*.mp4
+
+# ── Configuração local de ferramentas de IA (não compartilhar) ──
+.agents/
+.claude/
+skills-lock.json
+
+# ── Scripts locais ───────────────────────────────────────────────
+start.bat
+
+# ── Arquivo .env.example da raiz (se contiver senhas dev) ────────
+/.env.example
+
+# ── Briefing pessoal de apresentação (NÃO compartilhar) ──────────
+APRESENTACAO.md

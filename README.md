@@ -6,6 +6,34 @@ Plataforma de monitoramento preventivo de saúde mental — FIAP Challenges 2025
 
 ---
 
+## 🚀 Acessar a Aplicação Online
+
+A aplicação **está rodando ao vivo no Railway**. Nenhuma instalação necessária!
+
+### URLs de Produção
+
+Após seguir o [guia de deploy no RAILWAY.md](./RAILWAY.md), sua aplicação estará disponível em:
+
+| Serviço | URL |
+|---------|-----|
+| **Frontend** (app web) | `https://mindguard-frontend-xxxx.up.railway.app` |
+| **Backend** (API REST) | `https://mindguard-backend-xxxx.up.railway.app` |
+| **Python Engine** | `https://mindguard-python-xxxx.up.railway.app` |
+
+*Substitua `xxxx` pelos identificadores do seu projeto no Railway.*
+
+### Teste de Acesso Rápido
+
+```bash
+# Verificar se backend está online
+curl https://mindguard-backend-xxxx.up.railway.app/health
+
+# Acessar no navegador
+https://mindguard-frontend-xxxx.up.railway.app
+```
+
+---
+
 ## Rodar com Docker (recomendado — zero configuração)
 
 > Pré-requisito: [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e rodando.
@@ -102,6 +130,19 @@ mindguard/
 
 ---
 
-## Dúvidas
+## Deploy em Produção
 
-Consulte a pasta `mindguard-obsidian/` para documentação detalhada de arquitetura, banco de dados, endpoints e setup.
+Para fazer deploy próprio em Railway ou outro provedor, veja o [guia completo em RAILWAY.md](./RAILWAY.md).
+
+---
+
+## Documentação Técnica
+
+Consulte a pasta `mindguard-obsidian/` (ou `mindguard-obsidian/obsidian-mindguard/MindGuard/`) para documentação detalhada:
+- **Arquitetura** — como funciona
+- **Backend** — endpoints REST
+- **Frontend** — componentes React
+- **Python Engine** — cálculos de risco
+- **Database** — schema completo
+- **Setup-Instalacao** — guia de instalação
+- **Problemas-Solucoes** — troubleshooting

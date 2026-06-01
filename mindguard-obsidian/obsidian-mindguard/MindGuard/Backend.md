@@ -496,7 +496,7 @@ const pool = new Pool({
   port: 5433,
   database: 'mindguard',
   user: 'postgres',
-  password: 'MindGuard2024!',
+  password: 'troque-pela-sua-senha-local',
   max: 20,
   idleTimeoutMillis: 30000
 })
@@ -606,9 +606,9 @@ DB_HOST=localhost
 DB_PORT=5433
 DB_NAME=mindguard
 DB_USER=postgres
-DB_PASSWORD=MindGuard2024!
+DB_PASSWORD=troque-pela-sua-senha-local
 
-JWT_SECRET=mindguard_super_secret_key_2024_change_in_production
+JWT_SECRET=troque-por-uma-chave-aleatoria-de-32-caracteres
 JWT_EXPIRES_IN=7d
 
 REDIS_HOST=localhost

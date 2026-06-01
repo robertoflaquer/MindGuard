@@ -354,7 +354,7 @@ class Database:
       'port': '5433',
       'database': 'mindguard',
       'user': 'postgres',
-      'password': 'MindGuard2024!'
+      'password': 'troque-pela-sua-senha-local'
     }
   
   def connect()
@@ -380,7 +380,7 @@ DB_HOST=localhost
 DB_PORT=5433
 DB_NAME=mindguard
 DB_USER=postgres
-DB_PASSWORD=MindGuard2024!
+DB_PASSWORD=troque-pela-sua-senha-local
 
 # Redis (futuro)
 REDIS_HOST=localhost

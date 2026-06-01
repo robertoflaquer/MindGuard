@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: mindguard
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-MindGuard2024!}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
     ports:
       - "5433:5432"
     volumes:
@@ -30,7 +30,7 @@ services:
       DB_PORT: 5432
       DB_NAME: mindguard
       DB_USER: postgres
-      DB_PASSWORD: ${DB_PASSWORD:-MindGuard2024!}
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
       JWT_SECRET: ${JWT_SECRET:-change-this-in-production-32chars}
       JWT_EXPIRES_IN: 7d
       PYTHON_ENGINE_URL: http://python:8000
@@ -50,7 +50,7 @@ services:
       DB_PORT: 5432
       DB_NAME: mindguard
       DB_USER: postgres
-      DB_PASSWORD: ${DB_PASSWORD:-MindGuard2024!}
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
       BASELINE_MIN_DAYS: 7
       DEVIATION_THRESHOLD: 15.0
       HIGH_RISK_THRESHOLD: 70.0

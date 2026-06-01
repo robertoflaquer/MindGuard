@@ -17,7 +17,7 @@ class Database:
             'port':     os.getenv('DB_PORT', '5433'),
             'database': os.getenv('DB_NAME', 'mindguard'),
             'user':     os.getenv('DB_USER', 'postgres'),
-            'password': os.getenv('DB_PASSWORD', 'MindGuard!'),
+            'password': os.getenv('DB_PASSWORD', 'changeme'),
         }
         self.conn = None
 

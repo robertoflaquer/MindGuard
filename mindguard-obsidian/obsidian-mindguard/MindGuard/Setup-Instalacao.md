@@ -22,7 +22,7 @@ mindguard/
 - https://www.postgresql.org/download/windows/
 - Versão: 15 ou superior
 - **Porta: 5433** (importante!)
-- **Senha superuser: MindGuard2024!**
+- **Senha superuser: troque-pela-sua-senha-local**
 
 ### Verificar Instalação
 ```bash
@@ -69,8 +69,8 @@ DB_HOST=localhost
 DB_PORT=5433
 DB_NAME=mindguard
 DB_USER=postgres
-DB_PASSWORD=MindGuard2024!
-JWT_SECRET=mindguard_super_secret_key_2024_change_in_production
+DB_PASSWORD=troque-pela-sua-senha-local
+JWT_SECRET=troque-por-uma-chave-aleatoria-de-32-caracteres
 REDIS_HOST=localhost
 REDIS_PORT=6379
 ```
@@ -129,7 +129,7 @@ DB_HOST=localhost
 DB_PORT=5433
 DB_NAME=mindguard
 DB_USER=postgres
-DB_PASSWORD=MindGuard2024!
+DB_PASSWORD=troque-pela-sua-senha-local
 ```
 
 ### Rodar

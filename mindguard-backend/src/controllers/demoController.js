@@ -6,6 +6,10 @@ import jwt from 'jsonwebtoken';
 import { query, transaction } from '../config/database.js';
 import logger from '../config/logger.js';
 
+// Credenciais públicas e intencionais — esta é uma conta de demonstração
+// com dados 100% fictícios, populada pelo endpoint POST /api/auth/demo.
+// Existe para que apresentações e avaliadores possam explorar o produto
+// sem precisar criar conta. Não armazena nenhum dado real.
 const DEMO_EMAIL = 'demo@careplus.com';
 const DEMO_PASSWORD = 'Demo2026!';
 const DEMO_NAME = 'Roberto (Demo)';

@@ -43,10 +43,10 @@
 # Resetar senha PostgreSQL (cmd Admin):
 "C:\Program Files\PostgreSQL\15\bin\psql" -U postgres -h localhost -p 5433 -d postgres
 # Dentro do psql:
-ALTER USER postgres PASSWORD 'MindGuard2024!';
+ALTER USER postgres PASSWORD 'troque-pela-sua-senha-local';
 \q
 
-# Depois atualizar .env com: DB_PASSWORD=MindGuard2024!
+# Depois atualizar .env com: DB_PASSWORD=troque-pela-sua-senha-local
 ```
 
 **4. Reiniciar Python Engine:**

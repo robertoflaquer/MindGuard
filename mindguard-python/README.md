@@ -32,7 +32,7 @@ DB_HOST=localhost
 DB_PORT=5433
 DB_NAME=mindguard
 DB_USER=postgres
-DB_PASSWORD=MindGuard!
+DB_PASSWORD=troque-pela-sua-senha-local
 
 # Algoritmo de baseline
 BASELINE_MIN_DAYS=7

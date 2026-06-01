@@ -32,8 +32,8 @@ DB_HOST=localhost
 DB_PORT=5433
 DB_NAME=mindguard
 DB_USER=postgres
-DB_PASSWORD=MindGuard!
-JWT_SECRET=sua_chave_secreta
+DB_PASSWORD=troque-pela-sua-senha-local
+JWT_SECRET=troque-por-uma-chave-aleatoria-de-32-caracteres
 ```
 
 ## Banco de dados

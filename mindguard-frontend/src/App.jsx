@@ -14,6 +14,7 @@ import Enterprise from './pages/Enterprise'
 import Metodologia from './pages/Metodologia'
 import WeeklyReport from './pages/WeeklyReport'
 import Connect from './pages/Connect'
+import MedicoView from './pages/MedicoView'
 import Toast from './components/Toast'
 import ErrorBoundary from './components/ErrorBoundary'
 
@@ -87,6 +88,14 @@ export default function App() {
           />
           <Route path="/empresa" element={<Enterprise />} />
           <Route path="/metodologia" element={<Metodologia />} />
+          <Route
+            path="/medico"
+            element={
+              <PrivateRoute>
+                <MedicoView />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/conectar"
             element={

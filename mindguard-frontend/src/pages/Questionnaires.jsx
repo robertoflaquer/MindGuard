@@ -173,7 +173,7 @@ export default function Questionnaires() {
                     <button
                       onClick={() => isReady && setActive(q.code)}
                       disabled={!isReady}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all min-h-[44px] flex-shrink-0"
                       style={isReady
                         ? { background: meta.color, color: '#060C16' }
                         : { background: 'var(--bg-raised)', color: 'var(--text-muted)', cursor: 'not-allowed' }

@@ -136,7 +136,8 @@ body {
   }
 
   .input-field {
-    @apply w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200;
+    @apply w-full px-4 py-3 rounded-xl font-medium transition-all duration-200;
+    font-size: 16px; /* prevents iOS Safari auto-zoom on focus */
     background: var(--bg-surface);
     border: 1.5px solid var(--border-mid);
     color: var(--text-pri);

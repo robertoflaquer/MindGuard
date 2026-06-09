@@ -2,6 +2,7 @@
 import signalService from '../services/signalService.js';
 import logger from '../config/logger.js';
 import { triggerRiskCalculation, triggerBaselineCalculation } from '../services/pythonService.js';
+import { query } from '../config/database.js';
 
 class SignalController {
   async ingestBatch(req, res, next) {
@@ -95,6 +96,38 @@ class SignalController {
             logger.warn({ userId, err: err.message }, 'Risk calc failed')
           );
         });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getStreak(req, res, next) {
+    try {
+      const userId = req.user.userId;
+      const r = await query(
+        `SELECT DISTINCT DATE(timestamp AT TIME ZONE 'UTC') AS day
+         FROM user_signals
+         WHERE user_id = $1 AND timestamp >= NOW() - INTERVAL '90 days'
+         ORDER BY day DESC`,
+        [userId]
+      );
+
+      const dayStrs = new Set(r.rows.map((row) => new Date(row.day).toISOString().slice(0, 10)));
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+      const todayStr = today.toISOString().slice(0, 10);
+
+      // Start from today; if no data today, allow starting from yesterday
+      const startOffset = dayStrs.has(todayStr) ? 0 : 1;
+      let streak = 0;
+      for (let i = startOffset; i < 90; i++) {
+        const d = new Date(today);
+        d.setUTCDate(d.getUTCDate() - i);
+        if (dayStrs.has(d.toISOString().slice(0, 10))) streak++;
+        else break;
+      }
+
+      res.status(200).json({ success: true, data: { streak } });
     } catch (error) {
       next(error);
     }

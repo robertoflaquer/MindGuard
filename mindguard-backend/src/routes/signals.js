@@ -15,6 +15,9 @@ router.get('/types', signalController.getTypes);
 // GET /api/signals/recent
 router.get('/recent', signalController.getRecent);
 
+// GET /api/signals/streak
+router.get('/streak', signalController.getStreak);
+
 // GET /api/signals/stats
 router.get('/stats', signalController.getStats);
 

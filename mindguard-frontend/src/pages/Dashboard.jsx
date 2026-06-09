@@ -24,12 +24,17 @@ import {
   Smartphone,
   CheckCircle2,
   WifiOff,
+  Flame,
+  Wind,
+  UserCheck,
 } from 'lucide-react'
 import { useThemeStore } from '../store/useThemeStore'
 import RiskCard from '../components/RiskCard'
 import RiskExplanationModal from '../components/RiskExplanationModal'
 import SignalForm from '../components/SignalForm'
 import SignalChart from '../components/SignalChart'
+import BreathingExercise from '../components/BreathingExercise'
+import MoodCalendar from '../components/MoodCalendar'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import api from '../services/api'
@@ -162,6 +167,8 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('overview')
   const [showRiskModal, setShowRiskModal] = useState(false)
   const [wearableStatus, setWearableStatus] = useState(null)
+  const [streak, setStreak] = useState(0)
+  const [showBreathing, setShowBreathing] = useState(false)
   const { isDark, toggle: toggleTheme } = useThemeStore()
 
   useEffect(() => {
@@ -172,6 +179,7 @@ export default function Dashboard() {
     fetchDue()
     fetchHistory(null, 20)
     fetchInsights()
+    api.get('/api/signals/streak').then(r => setStreak(r.data?.data?.streak ?? 0)).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -269,6 +277,18 @@ export default function Dashboard() {
           </button>
         )}
 
+        {/* Streak badge */}
+        {streak > 0 && (
+          <div className="mb-5 flex items-center gap-2 w-fit px-4 py-2 rounded-full"
+            style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.3)' }}>
+            <Flame className="w-4 h-4" style={{ color: '#FBBF24' }} />
+            <span className="text-sm font-bold" style={{ color: '#FBBF24' }}>
+              {streak} {streak === 1 ? 'dia' : 'dias'} seguidos
+            </span>
+            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>· Continue assim!</span>
+          </div>
+        )}
+
         {/* Tabs */}
         <div className="flex gap-1 mb-8 p-1 rounded-xl w-fit" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
           {[
@@ -333,24 +353,58 @@ export default function Dashboard() {
               </section>
             )}
 
-            {/* Weekly Report card — always visible */}
-            <section>
+            {/* Quick action cards row */}
+            <section className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <button
                 onClick={() => navigate('/relatorio-semanal')}
-                className="w-full text-left rounded-2xl p-4 flex items-center gap-4 transition-all"
+                className="text-left rounded-2xl p-4 flex items-center gap-3 transition-all"
                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: '3px solid var(--accent)' }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-raised)' }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-card)' }}
               >
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
                   style={{ background: 'var(--accent-glow)' }}>
-                  <BarChart2 className="w-5 h-5" style={{ color: 'var(--accent)' }} />
+                  <BarChart2 className="w-4 h-4" style={{ color: 'var(--accent)' }} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold" style={{ color: 'var(--text-pri)' }}>Relatório Semanal</p>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                    Análise detalhada da semana com recomendações personalizadas
-                  </p>
+                  <p className="text-xs mt-0.5 hidden sm:block" style={{ color: 'var(--text-muted)' }}>Análise + recomendações</p>
+                </div>
+                <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
+              </button>
+
+              <button
+                onClick={() => setShowBreathing(true)}
+                className="text-left rounded-2xl p-4 flex items-center gap-3 transition-all"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: '3px solid var(--jade)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-raised)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-card)' }}
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(45,212,191,0.12)' }}>
+                  <Wind className="w-4 h-4" style={{ color: 'var(--jade)' }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold" style={{ color: 'var(--text-pri)' }}>Respiração</p>
+                  <p className="text-xs mt-0.5 hidden sm:block" style={{ color: 'var(--text-muted)' }}>Box breathing · 48s</p>
+                </div>
+                <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
+              </button>
+
+              <button
+                onClick={() => navigate('/medico')}
+                className="text-left rounded-2xl p-4 flex items-center gap-3 transition-all"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: '3px solid #818CF8' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-raised)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-card)' }}
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(129,140,248,0.12)' }}>
+                  <UserCheck className="w-4 h-4" style={{ color: '#818CF8' }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold" style={{ color: 'var(--text-pri)' }}>Área do Médico</p>
+                  <p className="text-xs mt-0.5 hidden sm:block" style={{ color: 'var(--text-muted)' }}>Resumo clínico do paciente</p>
                 </div>
                 <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
               </button>
@@ -455,6 +509,11 @@ export default function Dashboard() {
               </button>
             </section>
 
+            {/* Mood calendar heatmap */}
+            <section>
+              <MoodCalendar />
+            </section>
+
             {/* Signal chart */}
             <section>
               {signals?.length > 0 ? (
@@ -533,6 +592,10 @@ export default function Dashboard() {
           risk={currentRisk}
           onClose={() => setShowRiskModal(false)}
         />
+      )}
+
+      {showBreathing && (
+        <BreathingExercise onClose={() => setShowBreathing(false)} />
       )}
     </div>
   )

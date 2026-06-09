@@ -99,16 +99,16 @@ export default function Connect() {
       <header className="sticky top-0 z-40 px-5 py-3.5"
         style={{ background: 'var(--header-blur)', backdropFilter: 'blur(16px)', borderBottom: '1px solid var(--border)' }}>
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/dashboard')} className="btn-ghost p-2 rounded-xl">
+          <div className="flex items-center gap-2 min-w-0">
+            <button onClick={() => navigate('/dashboard')} className="btn-ghost p-2 rounded-xl flex-shrink-0">
               <ArrowLeft className="w-4 h-4" />
             </button>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <MindGuardLogo />
-              <span className="font-bold text-sm" style={{ color: 'var(--text-pri)' }}>MindGuard</span>
+              <span className="font-bold text-sm hidden sm:inline" style={{ color: 'var(--text-pri)' }}>MindGuard</span>
             </div>
-            <div className="w-px h-4 mx-1" style={{ background: 'var(--border-mid)' }} />
-            <span className="text-sm font-semibold" style={{ color: 'var(--jade)' }}>Conectar Apple Health</span>
+            <div className="w-px h-4 mx-1 hidden sm:block flex-shrink-0" style={{ background: 'var(--border-mid)' }} />
+            <span className="text-sm font-semibold truncate" style={{ color: 'var(--jade)' }}>Conectar Apple Health</span>
           </div>
           <button onClick={toggleTheme} className="btn-ghost p-2 rounded-xl">
             {isDark ? <Sun className="w-4 h-4" style={{ color: 'var(--attn)' }} /> : <Moon className="w-4 h-4" style={{ color: 'var(--accent)' }} />}
@@ -214,7 +214,7 @@ export default function Connect() {
                       <p className="font-semibold" style={{ color: 'var(--text-pri)' }}>Arraste o export.xml aqui</p>
                       <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>ou clique para selecionar o arquivo</p>
                     </div>
-                    <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Aceita .xml ou .zip · Máximo 50 MB</p>
+                    <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Aceita .xml ou .zip · Máximo 250 MB</p>
                   </div>
                 )}
               </div>

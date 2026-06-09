@@ -3,6 +3,7 @@ import appleHealthParser from '../services/appleHealthParser.js';
 import { query } from '../config/database.js';
 import logger from '../config/logger.js';
 import axios from 'axios';
+import AdmZip from 'adm-zip';
 
 class WearableController {
   async importAppleHealth(req, res, next) {
@@ -13,7 +14,17 @@ class WearableController {
         return res.status(400).json({ success: false, error: 'Nenhum arquivo enviado. Envie o export.xml do Apple Health.' });
       }
 
-      const xmlContent = req.file.buffer.toString('utf-8');
+      let xmlContent;
+      if (req.file.originalname.endsWith('.zip') || req.file.mimetype === 'application/zip') {
+        const zip = new AdmZip(req.file.buffer);
+        const xmlEntry = zip.getEntries().find(e => e.entryName.endsWith('export.xml') || e.entryName === 'apple_health_export/export.xml');
+        if (!xmlEntry) {
+          return res.status(422).json({ success: false, error: 'Arquivo ZIP não contém export.xml. Extraia o ZIP e envie apenas o arquivo export.xml.' });
+        }
+        xmlContent = xmlEntry.getData().toString('utf-8');
+      } else {
+        xmlContent = req.file.buffer.toString('utf-8');
+      }
 
       let parsed;
       try {

@@ -26,6 +26,8 @@ const degradation = (dayIndex) => {
   return 0.7 + (7 - dayIndex) / 7 * 0.3;  // alta degradação
 };
 
+const APPLE_HEALTH_META = JSON.stringify({ source: 'apple_health' });
+
 function generateSignals(userId, signalTypeIds) {
   const signals = [];
   const now = new Date();
@@ -36,17 +38,19 @@ function generateSignals(userId, signalTypeIds) {
     date.setHours(7, 30, 0, 0);
     const d = degradation(dayIndex);
 
-    signals.push({ typeId: signalTypeIds.HRV,            value: jitter(60 - d * 22, 6),  ts: new Date(date) });
-    signals.push({ typeId: signalTypeIds.HR_resting,     value: jitter(62 + d * 14, 4),  ts: new Date(date) });
-    signals.push({ typeId: signalTypeIds.sleep_duration, value: jitter(7.5 - d * 2.0, 0.6), ts: new Date(date) });
-    signals.push({ typeId: signalTypeIds.sleep_quality,  value: jitter(82 - d * 30, 8), ts: new Date(date) });
+    // Apple Watch biometric signals
+    signals.push({ typeId: signalTypeIds.HRV,            value: jitter(60 - d * 22, 6),       ts: new Date(date), meta: APPLE_HEALTH_META, conf: 0.85 });
+    signals.push({ typeId: signalTypeIds.HR_resting,     value: jitter(62 + d * 14, 4),        ts: new Date(date), meta: APPLE_HEALTH_META, conf: 0.85 });
+    signals.push({ typeId: signalTypeIds.sleep_duration, value: jitter(7.5 - d * 2.0, 0.6),   ts: new Date(date), meta: APPLE_HEALTH_META, conf: 0.85 });
+    signals.push({ typeId: signalTypeIds.sleep_quality,  value: jitter(82 - d * 30, 8),        ts: new Date(date), meta: APPLE_HEALTH_META, conf: 0.85 });
+    signals.push({ typeId: signalTypeIds.steps,          value: Math.round(jitter(8500 - d * 3500, 1200)), ts: new Date(date), meta: APPLE_HEALTH_META, conf: 0.85 });
 
+    // Subjective self-report signals (evening check-in)
     const eveningDate = new Date(date);
     eveningDate.setHours(20, 0, 0, 0);
     signals.push({ typeId: signalTypeIds.stress_level,   value: Math.min(10, Math.max(1, Math.round(jitter(3 + d * 6, 1)))),  ts: new Date(eveningDate) });
     signals.push({ typeId: signalTypeIds.energy_level,   value: Math.min(10, Math.max(1, Math.round(jitter(8 - d * 4, 1)))),  ts: new Date(eveningDate) });
     signals.push({ typeId: signalTypeIds.mood,           value: Math.min(10, Math.max(1, Math.round(jitter(8 - d * 4, 1)))),  ts: new Date(eveningDate) });
-    signals.push({ typeId: signalTypeIds.steps,          value: Math.round(jitter(8500 - d * 3500, 1200)),  ts: new Date(date) });
   }
 
   return signals;
@@ -102,13 +106,13 @@ class DemoController {
         const signalTypeIds = {};
         typesResult.rows.forEach((r) => { signalTypeIds[r.name] = r.id; });
 
-        // 3. Popula 30 dias de sinais
+        // 3. Popula 30 dias de sinais (biométricos do Apple Watch + auto-relato)
         const signals = generateSignals(userId, signalTypeIds);
         for (const s of signals) {
           await client.query(
-            `INSERT INTO user_signals (user_id, signal_type_id, value, timestamp, confidence_score)
-             VALUES ($1, $2, $3, $4, 1.0)`,
-            [userId, s.typeId, s.value, s.ts]
+            `INSERT INTO user_signals (user_id, signal_type_id, value, timestamp, confidence_score, source_metadata)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [userId, s.typeId, s.value, s.ts, s.conf ?? 1.0, s.meta ?? null]
           );
         }
 

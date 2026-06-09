@@ -1,7 +1,7 @@
 ---
 tags: [sprint, planning, fase3]
 data: 2026-06-09
-status: em-execução
+status: concluído
 ---
 
 # Fase 3 — UX, Responsivo e Engajamento
@@ -15,17 +15,23 @@ status: em-execução
 
 | # | Tipo | Item | Arquivo(s) | Status |
 |---|------|------|-----------|--------|
-| 1 | 🔴 Bug | Apple Health 185MB (limite 50MB) | `appleHealthParser.js`, `wearables.js` | ✅ commit a3565c0 |
-| 2 | 🔴 Bug | Modo claro não funciona na Metodologia | `Metodologia.jsx`, `index.css` | ✅ commit a3565c0 |
-| 3 | 🔴 Bug | `--bg-base` CSS var não existe — afeta Connect, WeeklyReport, Metodologia | `index.css` | ✅ commit a3565c0 |
-| 4 | 🟡 UX | Botão Relatório Semanal não visível sem recomendações | `Dashboard.jsx` | ✅ commit a3565c0 |
-| 5 | 🟡 UX | Aba "Registrar Sinais" — botões Wearable inúteis | `Dashboard.jsx` | ✅ commit a3565c0 |
-| 6 | 🟠 Feature | Responsivo iPhone (prioridade) + Android | todos os `.jsx` | ✅ commit 722d82f |
-| 7 | 🟢 Feature | Área do Médico (preview) | `MedicoView.jsx`, rota `/medico` | ✅ commit 722d82f |
-| 8 | 🟢 Feature | Streak diário + gamificação | backend + Dashboard badge | ✅ commit 722d82f |
-| 9 | ⭐ Surpresa | Mood Calendar (heatmap 90 dias) | `MoodCalendar.jsx` | ✅ commit 722d82f |
-| 10 | ⭐ Surpresa | Exercício de respiração interativo | `BreathingExercise.jsx` | ✅ commit 722d82f |
-| 11 | ⭐ Surpresa | Tendência preditiva ("risco em X dias") | `Dashboard.jsx`, `riskController.js` | ⬜ próximo |
+| 1 | 🔴 Bug | Apple Health 185MB (limite 50MB) | `appleHealthParser.js`, `wearables.js` | ✅ a3565c0 |
+| 2 | 🔴 Bug | Modo claro não funciona na Metodologia | `Metodologia.jsx`, `index.css` | ✅ a3565c0 |
+| 3 | 🔴 Bug | `--bg-base` CSS var não existe | `index.css` | ✅ a3565c0 |
+| 4 | 🟡 UX | Botão Relatório Semanal não visível | `Dashboard.jsx` | ✅ a3565c0 |
+| 5 | 🟡 UX | Aba "Registrar Sinais" reorganizada | `Dashboard.jsx` | ✅ a3565c0 |
+| 6 | 🟠 Feature | Responsivo iPhone (16px inputs, 44px targets, header) | todos os `.jsx` | ✅ 722d82f |
+| 7 | 🟢 Feature | Área do Médico | `MedicoView.jsx`, rota `/medico` | ✅ 722d82f |
+| 8 | 🟢 Feature | Streak diário | backend `created_at` + Dashboard badge | ✅ 722d82f + 2d946ec |
+| 9 | ⭐ Surpresa | Mood Calendar (heatmap 90 dias) | `MoodCalendar.jsx` | ✅ 722d82f |
+| 10 | ⭐ Surpresa | Exercício de respiração interativo | `BreathingExercise.jsx` | ✅ 722d82f |
+| 11 | ⭐ Surpresa | Tendência preditiva (risco em X dias) | `Dashboard.jsx`, `riskController.js` | ✅ 4cb4f41 |
+| 12 | 🔴 Fix | Streak mostrava 90 dias (dados do demo) | `signalController.js` (created_at) | ✅ 2d946ec |
+| 13 | 🟡 Fix | Trend banner — layout visual melhorado | `Dashboard.jsx` | ✅ 2d946ec |
+| 14 | 🟡 Fix | Apple Health card removido da Overview | `Dashboard.jsx` | ✅ 2d946ec |
+| 15 | 🟡 Fix | Médico movido para nav header (como Empresa) | `Dashboard.jsx` | ✅ 2d946ec |
+| 16 | 🟡 Fix | Risk score com muitas casas decimais | `MedicoView.jsx` Math.round() | ✅ 2d946ec |
+| 17 | ⭐ Fix | Média 7 dias por sinal na Área do Médico | `MedicoView.jsx` | ✅ 2d946ec |
 
 ---
 
@@ -318,10 +324,13 @@ Dia 1 (09/jun):
   ✅ FEATURE 10: Exercício de Respiração (BreathingExercise.jsx) — commit 722d82f
 
 Antes de 15/jun às 19h:
-  ⬜ FEATURE 11: Tendência Preditiva (GET /api/risk/trend + Dashboard)
+  ✅ FEATURE 11: Tendência Preditiva — commit 4cb4f41
+  ✅ Fix streak (created_at) — commit 2d946ec
+  ✅ Fix trend banner layout — commit 2d946ec
+  ✅ Fix Apple Health na overview removido — commit 2d946ec
+  ✅ Fix MedicoView score + médias 7d — commit 2d946ec
   ⬜ Testes end-to-end em produção com conta demo
-  ⬜ Verificar deploy Railway (backend + frontend)
-  ⬜ Git push final se houver ajustes
+  ⬜ Verificar deploy Railway (backend + frontend OK)
 ```
 
 ---

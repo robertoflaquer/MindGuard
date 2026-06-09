@@ -33,14 +33,15 @@ import { useInsightsStore } from '../store/useInsightsStore'
 
 const Q_META = {
   PSS:           { label: 'PSS-10',   color: '#818CF8', getLevelText: (s) => s <= 13 ? 'Baixo' : s <= 26 ? 'Moderado' : 'Elevado' },
+  GAD7:          { label: 'GAD-7',    color: '#34D399', getLevelText: (s) => s <= 4  ? 'Mínima' : s <= 9  ? 'Leve'     : s <= 14 ? 'Moderada' : 'Grave' },
   CBI:           { label: 'CBI',      color: '#FB923C', getLevelText: (s) => s <= 28 ? 'Baixo' : s <= 50 ? 'Moderado' : 'Elevado' },
   OLBI:          { label: 'OLBI',     color: '#C084FC', getLevelText: (s) => s <= 28 ? 'Baixo' : s <= 44 ? 'Moderado' : 'Elevado' },
   DAILY_CHECKIN: { label: 'Check-in', color: '#2DD4BF', getLevelText: (s) => s <= 9  ? 'Bem'   : s <= 19 ? 'Moderado' : 'Difícil' },
 }
 
 const LEVEL_SCORE_COLOR = (level) => {
-  if (level === 'Baixo' || level === 'Bem') return 'var(--stable)'
-  if (level === 'Moderado') return 'var(--attn)'
+  if (level === 'Baixo' || level === 'Bem' || level === 'Mínima') return 'var(--stable)'
+  if (level === 'Moderado' || level === 'Moderada' || level === 'Leve') return 'var(--attn)'
   return 'var(--danger)'
 }
 

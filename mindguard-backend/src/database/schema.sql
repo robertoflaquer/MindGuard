@@ -325,7 +325,8 @@ INSERT INTO signal_types (name, category, unit, min_value, max_value, descriptio
     ('stress_level',   'psychological', '1-10',    1,    10,   'Nível de Estresse (auto-report)'),
     ('energy_level',   'psychological', '1-10',    1,    10,   'Nível de Energia (auto-report)'),
     ('mood',           'psychological', '1-10',    1,    10,   'Humor (auto-report)'),
-    ('steps',          'physical',      'count',   0,    100000, 'Passos por Dia')
+    ('steps',          'physical',      'count',   0,    100000, 'Passos por Dia'),
+    ('spo2',           'physiological', '%',       80,   100,  'Saturação de Oxigênio (SpO₂)')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO risk_levels (code, name, severity_order, color_code, description) VALUES

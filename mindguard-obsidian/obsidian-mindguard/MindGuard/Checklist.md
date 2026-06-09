@@ -366,38 +366,47 @@
 
 ---
 
-## 13. FASE 2.5 — SPRINT FINAL (9–15/jun/2026) 🔄
+## 13. FASE 2.5 — SPRINT FINAL (9–15/jun/2026) ✅ CONCLUÍDO
 
 > Feedback da banca FIAP × CarePlus após Fase 1. Ver plano completo em [[Fase2-Sprint-Final]].
+> Commit: `3ae4d17` + `20cfac6` · Deploy: Railway (push 2026-06-09)
 
-### Q3 — Metodologia Científica
-- [x] Documento [[METODOLOGIA]] criado (PSS-10, GAD-7, CBI, OLBI, HRV, justificativa 70/30)
-- [ ] Página `/metodologia` no frontend (Metodologia.jsx)
-- [ ] Rota adicionada em App.jsx
-- [ ] Link "Metodologia" no header do Dashboard
+### Q3 — Metodologia Científica ✅
+- [x] Documento [[METODOLOGIA]] criado (PSS-10, GAD-7, CBI, OLBI, HRV, justificativa 70/30, 26 refs)
+- [x] Página `/metodologia` no frontend (Metodologia.jsx)
+- [x] Rota adicionada em App.jsx
+- [x] Link "Metodologia" no header do Dashboard
 
-### Q1 — Transparência do Risco
-- [ ] Botão "Por que?" no RiskCard (Dashboard.jsx)
-- [ ] Componente RiskExplanationModal.jsx
-- [ ] Decomposição: Q_score vs S_score vs contexto
-- [ ] Cada sinal: valor atual vs baseline pessoal + % desvio
-- [ ] Link "Ver metodologia" dentro do modal
+### Q1 — Transparência do Risco ✅
+- [x] Botão "Por que X%?" no RiskCard (RiskCard.jsx — prop `onWhyClick`)
+- [x] Componente RiskExplanationModal.jsx
+- [x] Decomposição: Q_score (70%) vs S_score (30%) vs contextos
+- [x] Cada sinal: valor atual vs referência + % desvio + is_bad flag
+- [x] Endpoint `GET /api/risk/breakdown` (riskController.getBreakdown)
+- [x] Link "Ver metodologia" dentro do modal
 
-### Q2 — Recomendações + Mini-relatório
-- [ ] `insightsService.js` — lógica de recomendações baseada em sinais + questionários
-- [ ] `GET /api/insights` endpoint
-- [ ] `useInsightsStore.js` (Zustand)
-- [ ] Seção "Próximos Passos" no Dashboard
-- [ ] Botão "Já fiz isso ✓" por recomendação
-- [ ] Página `/relatorio-semanal` (WeeklyReport.jsx)
-- [ ] Rota adicionada em App.jsx
+### Q2 — Recomendações + Mini-relatório ✅
+- [x] `insightsService.js` — lógica de recomendações (sleep, HRV, stress, PSS, profissional, steps)
+- [x] `GET /api/insights` endpoint (insightsController.getInsights)
+- [x] `useInsightsStore.js` (Zustand)
+- [x] Seção "Próximos Passos" no Dashboard (top 3 recomendações)
+- [ ] Botão "Já fiz isso ✓" por recomendação — descartado (não agrega valor suficiente)
+- [x] Página `/relatorio-semanal` (WeeklyReport.jsx)
+- [x] Rota adicionada em App.jsx
 
-### Q4 — Apple Health XML Import
-- [ ] `appleHealthParser.js` — extrai HRV, FC, sono, passos de export.xml
-- [ ] `POST /api/wearables/apple-health/import` endpoint
-- [ ] Página `/conectar` (Connect.jsx) com instruções + upload
-- [ ] Preview dos dados antes de importar
-- [ ] Trigger baseline → risco após import
+### Q4 — Apple Health XML Import ✅
+- [x] `appleHealthParser.js` — extrai HRV, FC, sono, passos, SpO₂ de export.xml
+- [x] Suporte a ZIP: extrai export.xml automaticamente (adm-zip)
+- [x] `POST /api/wearables/apple-health/import` endpoint
+- [x] Página `/conectar` (Connect.jsx) com instruções passo-a-passo + upload drag-and-drop
+- [x] Usuário demo tem 30 dias de sinais Apple Watch (source_metadata apple_health)
+- [x] Trigger baseline → risco após import (fire-and-forget)
+- [ ] Preview dos dados antes de importar — parcial (mostra nome e tamanho do arquivo)
+
+### Fixes extras descobertos pós-auditoria ✅
+- [x] GAD7 adicionado ao Q_META do Dashboard (card estava invisível)
+- [x] `spo2` adicionado ao signal_types seed + migration `add_spo2_signal.sql`
+- [x] LEVEL_SCORE_COLOR atualizado para níveis GAD-7 (Mínima/Leve/Moderada/Grave)
 
 ---
 

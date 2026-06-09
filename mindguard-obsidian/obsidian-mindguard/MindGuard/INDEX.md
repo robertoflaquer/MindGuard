@@ -4,8 +4,8 @@
 
 Base de conhecimento estruturada do projeto MindGuard — plataforma de monitoramento preventivo de saúde mental integrada ao ecossistema Blua/CarePlus.
 
-**Última atualização**: 2026-05-14
-**Status do projeto**: MVP Web ✅ · Agendamentos ✅ · Prescrições ✅ · Mobile e Deploy em planejamento
+**Última atualização**: 2026-06-09
+**Status do projeto**: MVP Web ✅ · Deploy Railway ✅ · Sprint Final Fase 2.5 🔄 · Apresentação 15/jun/2026
 **Time**: Roberto (Lead Dev)
 
 ---
@@ -141,6 +141,31 @@ Base de conhecimento estruturada do projeto MindGuard — plataforma de monitora
 - Como reportar bugs
 
 **Leia se**: Quer contribuir ou colaborar no projeto
+
+---
+
+### 1️⃣1️⃣ [[METODOLOGIA]]
+**Para**: Embasamento científico do modelo de risco
+**Contém**:
+- Validação dos instrumentos PSS-10, GAD-7, CBI, OLBI
+- HRV como biomarcador de estresse (referências Task Force, Shaffer 2017)
+- Justificativa para pesos 70% questionários / 30% sinais
+- Ajuste contextual, thresholds, limitações
+- 26 referências científicas completas
+
+**Leia se**: Banca pergunta sobre metodologia ou validação científica
+
+---
+
+### 1️⃣2️⃣ [[Fase2-Sprint-Final]]
+**Para**: Plano de execução do Sprint Final (9–15/jun/2026)
+**Contém**:
+- 4 etapas detalhadas com arquivos a criar/modificar
+- Estimativas de tempo por etapa
+- Ordem de execução recomendada
+- Checklist de deploy final
+
+**Leia se**: Precisa saber o que construir e em que ordem
 
 ---
 

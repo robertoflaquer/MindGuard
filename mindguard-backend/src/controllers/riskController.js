@@ -101,6 +101,127 @@ class RiskController {
     }
   }
 
+  async getBreakdown(req, res, next) {
+    try {
+      const userId = req.user.userId;
+
+      // Last questionnaire score per type
+      const qResult = await query(
+        `SELECT DISTINCT ON (qt.code)
+           qt.code, qt.name, qt.max_score, qr.total_score, qr.completed_at
+         FROM questionnaire_responses qr
+         JOIN questionnaire_types qt ON qr.questionnaire_type_id = qt.id
+         WHERE qr.user_id = $1 AND qr.is_valid = TRUE
+         ORDER BY qt.code, qr.completed_at DESC`,
+        [userId]
+      );
+
+      // 7-day average vs 7–21 day average — works without baselines table
+      const signalTrendResult = await query(
+        `SELECT
+           st.name,
+           AVG(CASE WHEN us.timestamp >= NOW() - INTERVAL '7 days' THEN us.value END)   AS recent_7d,
+           AVG(CASE WHEN us.timestamp >= NOW() - INTERVAL '21 days'
+                    AND us.timestamp  <  NOW() - INTERVAL '7 days'  THEN us.value END) AS baseline_14d,
+           COUNT(*) AS total_readings
+         FROM user_signals us
+         JOIN signal_types st ON us.signal_type_id = st.id
+         WHERE us.user_id = $1
+           AND us.timestamp >= NOW() - INTERVAL '21 days'
+           AND us.is_outlier = FALSE
+         GROUP BY st.name
+         HAVING COUNT(*) >= 2`,
+        [userId]
+      );
+
+      // Active contexts
+      const ctxResult = await query(
+        `SELECT ct.code, ct.name, uc.severity
+         FROM user_contexts uc
+         JOIN context_types ct ON uc.context_type_id = ct.id
+         WHERE uc.user_id = $1 AND uc.is_active = TRUE`,
+        [userId]
+      );
+
+      // Build signal deviations
+      const SIGNAL_DISPLAY = {
+        HRV:            'Variabilidade Cardíaca (HRV)',
+        HR_resting:     'FC em Repouso',
+        sleep_duration: 'Duração do Sono',
+        sleep_quality:  'Qualidade do Sono',
+        stress_level:   'Nível de Estresse',
+        energy_level:   'Nível de Energia',
+        mood:           'Humor',
+        steps:          'Passos Diários',
+      };
+      // For these signals, "higher is worse" (direction inverted)
+      const INVERTED = new Set(['stress_level', 'HR_resting']);
+
+      const signalDeviations = signalTrendResult.rows
+        .filter(r => r.recent_7d != null && r.baseline_14d != null && parseFloat(r.baseline_14d) > 0)
+        .map(r => {
+          const recent   = parseFloat(r.recent_7d);
+          const baseline = parseFloat(r.baseline_14d);
+          const pctRaw   = ((recent - baseline) / baseline) * 100;
+          const pct      = Math.round(pctRaw * 10) / 10;
+          const isInverted = INVERTED.has(r.name);
+          const isBad = isInverted ? pct > 10 : pct < -10;
+          return {
+            name:            r.name,
+            display_name:    SIGNAL_DISPLAY[r.name] || r.name,
+            current_value:   Math.round(recent * 10) / 10,
+            baseline_value:  Math.round(baseline * 10) / 10,
+            percent_change:  pct,
+            direction:       pct > 1 ? 'up' : pct < -1 ? 'down' : 'stable',
+            is_significant:  Math.abs(pct) >= 15,
+            is_bad:          isBad,
+          };
+        })
+        .sort((a, b) => Math.abs(b.percent_change) - Math.abs(a.percent_change))
+        .slice(0, 6);
+
+      // Build questionnaire details
+      const Q_WEIGHTS  = { PSS: 0.45, GAD7: 0.25, CBI: 0.20, OLBI: 0.10 };
+      const qMap = {};
+      qResult.rows.forEach(q => { qMap[q.code] = q; });
+
+      let qWeightedSum = 0;
+      let qWeightTotal = 0;
+      const qDetails = [];
+      for (const [code, weight] of Object.entries(Q_WEIGHTS)) {
+        const q = qMap[code];
+        if (!q) continue;
+        const normalized = (parseFloat(q.total_score) / parseFloat(q.max_score)) * 100;
+        qWeightedSum += normalized * weight;
+        qWeightTotal += weight;
+        qDetails.push({
+          code,
+          name:         q.name,
+          score:        parseFloat(q.total_score),
+          max_score:    parseFloat(q.max_score),
+          normalized:   Math.round(normalized),
+          weight:       Math.round(weight * 100),
+          completed_at: q.completed_at,
+        });
+      }
+
+      const qScore = qWeightTotal > 0 ? Math.round(qWeightedSum / qWeightTotal) : null;
+
+      res.status(200).json({
+        success: true,
+        data: {
+          questionnaire_score: qScore,
+          questionnaire_details: qDetails,
+          signal_deviations: signalDeviations,
+          active_contexts: ctxResult.rows,
+          algorithm_weights: { questionnaires: 70, signals: 30 },
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getJobStatus(req, res, next) {
     try {
       const { jobId } = req.params;

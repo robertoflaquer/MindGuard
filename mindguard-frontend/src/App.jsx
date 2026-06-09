@@ -11,6 +11,9 @@ import Contexts from './pages/Contexts'
 import Treatment from './pages/Treatment'
 import Prescriptions from './pages/Prescriptions'
 import Enterprise from './pages/Enterprise'
+import Metodologia from './pages/Metodologia'
+import WeeklyReport from './pages/WeeklyReport'
+import Connect from './pages/Connect'
 import Toast from './components/Toast'
 import ErrorBoundary from './components/ErrorBoundary'
 
@@ -83,6 +86,23 @@ export default function App() {
             }
           />
           <Route path="/empresa" element={<Enterprise />} />
+          <Route path="/metodologia" element={<Metodologia />} />
+          <Route
+            path="/conectar"
+            element={
+              <PrivateRoute>
+                <Connect />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/relatorio-semanal"
+            element={
+              <PrivateRoute>
+                <WeeklyReport />
+              </PrivateRoute>
+            }
+          />
           <Route path="/" element={<HomeRoute />} />
         </Routes>
         <Toast />

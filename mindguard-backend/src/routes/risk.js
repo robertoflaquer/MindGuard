@@ -12,6 +12,8 @@ router.get('/job/:jobId', riskController.getJobStatus);
 
 router.get('/current', riskController.getCurrentRisk);
 
+router.get('/breakdown', riskController.getBreakdown);
+
 router.get('/history', riskController.getHistory);
 
 router.post('/assess', riskController.triggerAssessment);

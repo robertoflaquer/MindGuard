@@ -23,10 +23,16 @@ Fase 1.5 (Concluída): Segurança & Features Extras
 ├─ Endpoint /api/signals/simulate (Apple Watch / Galaxy Watch) ✅
 └─ Botão Simular Wearable no Dashboard ✅
 
-Fase 2 (Atual): Deploy & Qualidade
-├─ Deploy Railway/Render ← PRÓXIMO
-├─ Limpeza de código (console.log, código morto, README)
-└─ Testes end-to-end
+Fase 2 (Concluída): Deploy & Qualidade ✅
+├─ Deploy Railway/Render ✅ (2026-05-20)
+├─ Limpeza de código ✅ (console.log, código morto, README removidos)
+└─ Testes end-to-end ✅
+
+Fase 2.5 (Em execução): Sprint Final — Apresentação 15/jun/2026
+├─ Metodologia científica + página /metodologia ✅ (doc criado)
+├─ Transparência do risco — "Por que esse risco?" (modal)
+├─ Recomendações + mini-relatório semanal
+└─ Integração Apple Health XML (import real de wearable)
 
 Fase 3: Mobile & Wearables Físicos
 ├─ App iOS (HealthKit + background sync)
@@ -47,39 +53,39 @@ Fase 5: ML & Escalabilidade
 
 ---
 
-## Fase 2: Deploy & Qualidade (Atual)
+## Fase 2: Deploy & Qualidade ✅ (Concluída — 2026-05-20)
 
 ### Etapa 1: Deploy
-**Status**: 🔴 Não iniciado — **maior prioridade**
+**Status**: ✅ **Concluído**
 
-**O que fazer**:
-1. Testar `docker-compose up --build` localmente com todos os serviços
-2. Configurar `.env` de produção (sem valores de desenvolvimento)
-3. Criar conta no Railway.app ou Render.com
-4. Deploy dos 4 serviços: postgres, backend, python, frontend
-5. Configurar variáveis de ambiente como secrets
-6. Verificar HTTPS automático
+**O que foi feito**:
+1. ✅ `docker-compose up --build` testado localmente com todos os serviços
+2. ✅ `.env` de produção configurado
+3. ✅ Conta Railway.app criada
+4. ✅ Deploy dos 4 serviços: postgres, backend, python, frontend
+5. ✅ Variáveis de ambiente configuradas como secrets
+6. ✅ HTTPS automático via Railway
 
-**Critério de conclusão**:
+**Resultado**:
 ```bash
-# Tudo rodando em https://mindguard.railway.app (ou similar)
-curl https://api.mindguard.app/api/health → 200 OK
+# Todos os serviços rodando com HTTPS
+curl https://mindguard-backend-xxxx.up.railway.app/health → 200 OK
 # Frontend carregando e fluxo completo funcionando
 ```
 
 ### Etapa 2: Limpeza de Código
-**Status**: 🟡 Em andamento
+**Status**: ✅ **Concluído**
 
-**O que fazer**:
-1. Auditar arquivos `.jsx` sem uso no frontend
-2. ~~`console.log` em database.js~~ → **✅ feito** (substituído por pino logger)
-3. Remover `console.log` remanescentes no backend (fora do database.js)
-4. Remover `print()` de debug no Python Engine
-5. Consolidar estilos duplicados no `index.css`
-6. Atualizar `README.md` dos 3 projetos
+**O que foi feito**:
+1. ✅ Auditoria de arquivos `.jsx` sem uso no frontend — nenhum identificado
+2. ✅ `console.log` em database.js substituído por pino logger
+3. ✅ `console.log` remanescentes no backend removidos
+4. ✅ `print()` de debug no Python Engine removidos
+5. ✅ Estilos consolidados em `index.css`
+6. ✅ `README.md` atualizado nos 3 projetos
 
 ### Etapa 3: Segurança
-**Status**: ✅ Concluído
+**Status**: ✅ **Concluído**
 
 **O que foi feito**:
 1. ✅ `xss-clean` middleware adicionado em `server.js` (antes das routes)
@@ -88,7 +94,44 @@ curl https://api.mindguard.app/api/health → 200 OK
 
 ---
 
-## Fase 3: Mobile & Wearables (Próximas 4–6 semanas)
+---
+
+## Fase 2.5: Sprint Final — Apresentação 15/jun/2026
+
+> Ver plano detalhado em [[Fase2-Sprint-Final]].
+> Prazo: **15/jun/2026 às 19h** — apresentação presencial (FIAP × CarePlus)
+
+### Itens obrigatórios (feedback da banca)
+
+| # | Item | Status |
+|---|------|--------|
+| Q1 | Transparência do risco: modal "Por que esse risco?" | ⬜ Em desenvolvimento |
+| Q2 | Recomendações personalizadas + mini-relatório semanal | ⬜ Em desenvolvimento |
+| Q3 | Metodologia científica (doc + página /metodologia) | 🟡 Doc criado, página pendente |
+| Q4 | Import real de wearable — Apple Health XML | ⬜ Aguardando export.xml |
+
+### Arquivos novos planejados
+
+```
+Backend:
+  src/services/insightsService.js
+  src/controllers/insightsController.js
+  src/routes/insights.js
+  src/services/appleHealthParser.js
+  src/controllers/wearableController.js
+  src/routes/wearables.js
+
+Frontend:
+  src/pages/Metodologia.jsx
+  src/pages/WeeklyReport.jsx
+  src/pages/Connect.jsx
+  src/components/RiskExplanationModal.jsx
+  src/store/useInsightsStore.js
+```
+
+---
+
+## Fase 3: Mobile & Wearables (Próxima — ~4–6 semanas)
 
 > Pesquisa técnica completa em [[Wearables-Integracao]].
 

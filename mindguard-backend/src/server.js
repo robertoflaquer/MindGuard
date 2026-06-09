@@ -16,6 +16,8 @@ import contextRoutes from './routes/contexts.js';
 import riskRoutes from './routes/risk.js';
 import appointmentRoutes from './routes/appointments.js';
 import prescriptionRoutes from './routes/prescriptions.js';
+import insightsRoutes from './routes/insights.js';
+import wearablesRoutes from './routes/wearables.js';
 
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 
@@ -101,6 +103,8 @@ app.use('/api/contexts', contextRoutes);
 app.use('/api/risk', riskRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/prescriptions', prescriptionRoutes);
+app.use('/api/insights', insightsRoutes);
+app.use('/api/wearables', wearablesRoutes);
 
 // ============================================
 // ERROR HANDLING

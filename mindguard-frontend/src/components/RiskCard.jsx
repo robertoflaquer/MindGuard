@@ -1,5 +1,5 @@
 // src/components/RiskCard.jsx
-import { AlertTriangle, CheckCircle, AlertCircle, Clock } from 'lucide-react'
+import { AlertTriangle, CheckCircle, AlertCircle, Clock, HelpCircle } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -76,7 +76,7 @@ function RiskCardSkeleton() {
   )
 }
 
-export default function RiskCard({ risk, isLoading }) {
+export default function RiskCard({ risk, isLoading, onWhyClick }) {
   if (isLoading) return <RiskCardSkeleton />
   if (!risk) return null
 
@@ -154,11 +154,25 @@ export default function RiskCard({ risk, isLoading }) {
         </div>
       )}
 
-      {updatedAt && (
-        <p className="text-xs mt-4 text-right" style={{ color: 'var(--text-muted)' }}>
-          Avaliado {formatDistanceToNow(new Date(updatedAt), { addSuffix: true, locale: ptBR })}
-        </p>
-      )}
+      <div className="flex items-center justify-between mt-4">
+        {updatedAt ? (
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            Avaliado {formatDistanceToNow(new Date(updatedAt), { addSuffix: true, locale: ptBR })}
+          </p>
+        ) : <span />}
+        {onWhyClick && (
+          <button
+            onClick={onWhyClick}
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
+            style={{ background: 'rgba(45,212,191,0.1)', color: 'var(--jade)', border: '1px solid rgba(45,212,191,0.2)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(45,212,191,0.18)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(45,212,191,0.1)' }}
+          >
+            <HelpCircle className="w-3.5 h-3.5" />
+            Por que {Math.round(risk?.risk_score || 0)}%?
+          </button>
+        )}
+      </div>
     </div>
   )
 }

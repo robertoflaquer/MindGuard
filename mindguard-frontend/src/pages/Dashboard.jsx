@@ -19,14 +19,17 @@ import {
   Video,
   ScrollText,
   Building2,
+  FlaskConical,
 } from 'lucide-react'
 import { useThemeStore } from '../store/useThemeStore'
 import RiskCard from '../components/RiskCard'
+import RiskExplanationModal from '../components/RiskExplanationModal'
 import SignalForm from '../components/SignalForm'
 import SignalChart from '../components/SignalChart'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import api from '../services/api'
+import { useInsightsStore } from '../store/useInsightsStore'
 
 const Q_META = {
   PSS:           { label: 'PSS-10',   color: '#818CF8', getLevelText: (s) => s <= 13 ? 'Baixo' : s <= 26 ? 'Moderado' : 'Elevado' },
@@ -149,7 +152,10 @@ export default function Dashboard() {
   const { due, history, fetchDue, fetchHistory } = useQuestionnaireStore()
   const addToast = useToastStore((s) => s.addToast)
 
+  const { recommendations, fetchInsights } = useInsightsStore()
+
   const [activeTab, setActiveTab] = useState('overview')
+  const [showRiskModal, setShowRiskModal] = useState(false)
   const { isDark, toggle: toggleTheme } = useThemeStore()
 
   useEffect(() => {
@@ -159,6 +165,7 @@ export default function Dashboard() {
     fetchSignalTypes()
     fetchDue()
     fetchHistory(null, 20)
+    fetchInsights()
   }, [])
 
   useEffect(() => {
@@ -208,6 +215,15 @@ export default function Dashboard() {
               <Layers className="w-4 h-4" />
               <span className="hidden sm:inline">Contextos</span>
             </button>
+            <button
+              onClick={() => navigate('/metodologia')}
+              className="btn-ghost flex items-center gap-1.5 text-sm"
+              title="Embasamento científico do modelo de risco"
+            >
+              <FlaskConical className="w-4 h-4" />
+              <span className="hidden sm:inline">Metodologia</span>
+            </button>
+
             <button
               onClick={() => navigate('/empresa')}
               className="btn-ghost flex items-center gap-1.5 text-sm"
@@ -297,7 +313,7 @@ export default function Dashboard() {
               {isRiskLoading ? (
                 <RiskCard isLoading />
               ) : currentRisk ? (
-                <RiskCard risk={currentRisk} />
+                <RiskCard risk={currentRisk} onWhyClick={() => setShowRiskModal(true)} />
               ) : (
                 <div className="card text-center py-10">
                   <AlertTriangle className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
@@ -329,8 +345,67 @@ export default function Dashboard() {
               </section>
             )}
 
+            {/* Recommendations */}
+            {recommendations.length > 0 && (
+              <section>
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                    Próximos Passos
+                  </p>
+                  <button
+                    onClick={() => navigate('/relatorio-semanal')}
+                    className="flex items-center gap-1 text-xs font-semibold transition-colors"
+                    style={{ color: 'var(--jade)' }}
+                  >
+                    Ver relatório semanal <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {recommendations.slice(0, 3).map((rec, i) => {
+                    const ICONS = { sleep: '😴', breathing: '🧘', questionnaire: '📋', professional: '👨‍⚕️', movement: '🚶' }
+                    const COLORS = { high: 'var(--danger)', medium: 'var(--attn)', low: 'var(--stable)' }
+                    return (
+                      <div key={i} className="rounded-xl px-4 py-3 flex items-center gap-3"
+                        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: `2px solid ${COLORS[rec.priority] || 'var(--jade)'}` }}>
+                        <span className="text-lg leading-none flex-shrink-0">{ICONS[rec.type] || '✨'}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-pri)' }}>{rec.title}</p>
+                          <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{rec.action}</p>
+                        </div>
+                        {rec.action_type === 'questionnaire' && (
+                          <button onClick={() => navigate('/questionnaires')} className="text-xs font-semibold flex-shrink-0" style={{ color: 'var(--jade)' }}>Fazer</button>
+                        )}
+                        {rec.action_type === 'appointment' && (
+                          <button onClick={() => navigate('/treatment')} className="text-xs font-semibold flex-shrink-0" style={{ color: 'var(--jade)' }}>Agendar</button>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+            )}
+
             {/* Treatment CTA */}
             <section style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <button
+                onClick={() => navigate('/conectar')}
+                className="w-full text-left rounded-2xl p-5 flex items-center gap-4 transition-all"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: '3px solid var(--jade)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-raised)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-card)' }}
+              >
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-2xl"
+                  style={{ background: 'rgba(45,212,191,0.12)' }}>
+                  🍎
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm" style={{ color: 'var(--text-pri)' }}>Conectar Apple Health</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                    Importe HRV, sono e FC reais do Apple Watch
+                  </p>
+                </div>
+                <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
+              </button>
               <button
                 onClick={() => navigate('/treatment')}
                 className="w-full text-left rounded-2xl p-5 flex items-center gap-4 transition-all group"
@@ -427,6 +502,13 @@ export default function Dashboard() {
           </div>
         )}
       </main>
+
+      {showRiskModal && currentRisk && (
+        <RiskExplanationModal
+          risk={currentRisk}
+          onClose={() => setShowRiskModal(false)}
+        />
+      )}
     </div>
   )
 }

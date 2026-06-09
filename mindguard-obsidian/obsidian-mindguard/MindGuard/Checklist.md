@@ -1,11 +1,11 @@
 # MindGuard - Checklist do Projeto
 
-## Status Geral: MVP Web ✅ · Agendamentos ✅ · Prescrições ✅ · Mobile 🔜 · Deploy 🔜
-*Última atualização: 2026-05-14*
+## Status Geral: MVP Web ✅ · Deploy ✅ · Fase 2.5 (Sprint Final) 🔄 · Apresentação 15/jun/2026
+*Última atualização: 2026-06-09*
 
 ---
 
-## 1. INFRAESTRUTURA ✅ 90%
+## 1. INFRAESTRUTURA ✅ 100%
 
 - [x] PostgreSQL 15 instalado e rodando (porta 5433)
 - [x] Banco `mindguard` criado com schema completo
@@ -13,7 +13,7 @@
 - [x] Índices otimizados
 - [x] Migrations via `schema.sql` + `migrate.js`
 - [x] Docker setup (Dockerfiles + docker-compose para deploy)
-- [ ] Deploy em Railway/Render com HTTPS
+- [x] Deploy em Railway com HTTPS (README.md e RAILWAY.md com instruções)
 
 ---
 
@@ -164,14 +164,14 @@
 
 ---
 
-## 5. SEGURANÇA ✅ 90%
+## 5. SEGURANÇA ✅ 100%
 
 - [x] Bcrypt, JWT, prepared statements
 - [x] Rate limiting, CORS, Helmet.js
 - [x] Input sanitization XSS — `xss-clean` middleware em server.js
 - [x] SQL injection corrigido — `INTERVAL` parameterizado com `$N * INTERVAL '1 day'`
 - [x] `console.log` em database.js substituído por pino logger estruturado
-- [ ] HTTPS (via Railway/Render no deploy)
+- [x] HTTPS (automático via Railway)
 
 ---
 
@@ -208,16 +208,16 @@
 
 ---
 
-## 8. DEPLOY 🚀 30%
+## 8. DEPLOY 🚀 ✅ 100%
 
-- [x] Dockerfiles prontos (backend, frontend, python)
-- [x] docker-compose.yml completo
-- [ ] `.env` de produção configurado
-- [ ] `docker-compose up --build` testado localmente
-- [ ] Deploy em Railway.app ou Render.com
-- [ ] HTTPS configurado automaticamente
-- [ ] Variáveis de ambiente sensíveis em secrets do Railway/Render
-- [ ] Domínio personalizado (opcional)
+- [x] Dockerfiles prontos (backend, frontend, python) — Removidos em favor de Nixpacks
+- [x] docker-compose.yml completo para desenvolvimento
+- [x] railway.toml configurado para todos os serviços
+- [x] Deploy em Railway.app concluído (2026-05-20)
+- [x] HTTPS configurado automaticamente via Railway
+- [x] Variáveis de ambiente sensíveis em secrets do Railway
+- [x] Documentação completa em RAILWAY.md
+- [ ] Domínio personalizado (opcional — futuro)
 
 ---
 
@@ -312,7 +312,7 @@
 
 ---
 
-## O QUE FUNCIONA HOJE (2026-05-14)
+## O QUE FUNCIONA HOJE (2026-05-29)
 
 ✅ Backend Node.js (porta 3000) — todos endpoints incluindo appointments e prescriptions  
 ✅ PostgreSQL conectado + seed data completo (incluindo tabela specialists)  
@@ -331,10 +331,10 @@
 ✅ Nomes de sinais traduzidos para português no dropdown  
 ✅ Botão Simular Wearable no Dashboard (seletor Apple Watch / Galaxy Watch)  
 ✅ XSS sanitization + SQL injection corrigido + logs estruturados  
+✅ Deploy em Railway com Docker + Nixpacks configurado
 ⚠️ Mobile: não iniciado  
 ⚠️ Wearables físicos: pesquisa feita, implementação não iniciada (dados simulados funcionam)  
 ⚠️ Prescrição PDF: base implementada, geração de PDF pendente  
-⚠️ Deploy: não realizado  
 
 ---
 
@@ -364,4 +364,41 @@
 
 ---
 
-[[Arquitetura]] | [[Backend]] | [[Database]] | [[Frontend]] | [[Python-Engine]] | [[Roadmap]] | [[Wearables-Integracao]]
+---
+
+## 13. FASE 2.5 — SPRINT FINAL (9–15/jun/2026) 🔄
+
+> Feedback da banca FIAP × CarePlus após Fase 1. Ver plano completo em [[Fase2-Sprint-Final]].
+
+### Q3 — Metodologia Científica
+- [x] Documento [[METODOLOGIA]] criado (PSS-10, GAD-7, CBI, OLBI, HRV, justificativa 70/30)
+- [ ] Página `/metodologia` no frontend (Metodologia.jsx)
+- [ ] Rota adicionada em App.jsx
+- [ ] Link "Metodologia" no header do Dashboard
+
+### Q1 — Transparência do Risco
+- [ ] Botão "Por que?" no RiskCard (Dashboard.jsx)
+- [ ] Componente RiskExplanationModal.jsx
+- [ ] Decomposição: Q_score vs S_score vs contexto
+- [ ] Cada sinal: valor atual vs baseline pessoal + % desvio
+- [ ] Link "Ver metodologia" dentro do modal
+
+### Q2 — Recomendações + Mini-relatório
+- [ ] `insightsService.js` — lógica de recomendações baseada em sinais + questionários
+- [ ] `GET /api/insights` endpoint
+- [ ] `useInsightsStore.js` (Zustand)
+- [ ] Seção "Próximos Passos" no Dashboard
+- [ ] Botão "Já fiz isso ✓" por recomendação
+- [ ] Página `/relatorio-semanal` (WeeklyReport.jsx)
+- [ ] Rota adicionada em App.jsx
+
+### Q4 — Apple Health XML Import
+- [ ] `appleHealthParser.js` — extrai HRV, FC, sono, passos de export.xml
+- [ ] `POST /api/wearables/apple-health/import` endpoint
+- [ ] Página `/conectar` (Connect.jsx) com instruções + upload
+- [ ] Preview dos dados antes de importar
+- [ ] Trigger baseline → risco após import
+
+---
+
+[[Arquitetura]] | [[Backend]] | [[Database]] | [[Frontend]] | [[Python-Engine]] | [[Roadmap]] | [[Wearables-Integracao]] | [[METODOLOGIA]] | [[Fase2-Sprint-Final]]

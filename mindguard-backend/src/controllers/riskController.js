@@ -222,6 +222,54 @@ class RiskController {
     }
   }
 
+  async getTrend(req, res, next) {
+    try {
+      const userId = req.user.userId;
+      const r = await query(
+        `SELECT risk_score, assessment_timestamp
+         FROM risk_assessments
+         WHERE user_id = $1 AND assessment_timestamp >= NOW() - INTERVAL '14 days'
+         ORDER BY assessment_timestamp ASC`,
+        [userId]
+      );
+
+      const rows = r.rows;
+      if (rows.length < 2) {
+        return res.status(200).json({ success: true, data: { direction: 'stable', slope: 0, days_to_high_risk: null, points: rows.length } });
+      }
+
+      // Simple linear regression: y = score, x = days from first point
+      const t0 = new Date(rows[0].assessment_timestamp).getTime();
+      const xs = rows.map(row => (new Date(row.assessment_timestamp).getTime() - t0) / 86400000);
+      const ys = rows.map(row => parseFloat(row.risk_score));
+      const n  = xs.length;
+      const sumX  = xs.reduce((a, b) => a + b, 0);
+      const sumY  = ys.reduce((a, b) => a + b, 0);
+      const sumXY = xs.reduce((a, x, i) => a + x * ys[i], 0);
+      const sumX2 = xs.reduce((a, x) => a + x * x, 0);
+      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+
+      const lastScore = ys[ys.length - 1];
+      const direction = Math.abs(slope) < 0.5 ? 'stable' : slope > 0 ? 'up' : 'down';
+      const daysToHighRisk = slope > 0 && lastScore < 75
+        ? Math.round((75 - lastScore) / slope)
+        : null;
+
+      res.status(200).json({
+        success: true,
+        data: {
+          slope: Math.round(slope * 10) / 10,
+          direction,
+          days_to_high_risk: daysToHighRisk && daysToHighRisk > 0 && daysToHighRisk <= 60 ? daysToHighRisk : null,
+          current_score: Math.round(lastScore),
+          points: n,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getJobStatus(req, res, next) {
     try {
       const { jobId } = req.params;

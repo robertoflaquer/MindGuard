@@ -15,17 +15,17 @@ status: em-execução
 
 | # | Tipo | Item | Arquivo(s) | Status |
 |---|------|------|-----------|--------|
-| 1 | 🔴 Bug | Apple Health 185MB (limite 50MB) | `appleHealthParser.js`, `wearables.js` | ⬜ |
-| 2 | 🔴 Bug | Modo claro não funciona na Metodologia | `Metodologia.jsx`, `index.css` | ⬜ |
-| 3 | 🔴 Bug | `--bg-base` CSS var não existe — afeta Connect, WeeklyReport, Metodologia | `index.css` | ⬜ |
-| 4 | 🟡 UX | Botão Relatório Semanal não visível sem recomendações | `Dashboard.jsx` | ⬜ |
-| 5 | 🟡 UX | Aba "Registrar Sinais" — botões Wearable inúteis | `Dashboard.jsx` | ⬜ |
-| 6 | 🟠 Feature | Responsivo iPhone (prioridade) + Android | todos os `.jsx` | ⬜ |
-| 7 | 🟢 Feature | Área do Médico (preview) | `MedicoView.jsx`, rota `/medico` | ⬜ |
-| 8 | 🟢 Feature | Streak diário + gamificação | `StreakBadge.jsx`, backend | ⬜ |
-| 9 | ⭐ Surpresa | Mood Calendar (heatmap 90 dias) | `MoodCalendar.jsx` | ⬜ |
-| 10 | ⭐ Surpresa | Exercício de respiração interativo | `BreathingExercise.jsx` | ⬜ |
-| 11 | ⭐ Surpresa | Tendência preditiva ("risco em X dias") | `Dashboard.jsx`, `riskController.js` | ⬜ |
+| 1 | 🔴 Bug | Apple Health 185MB (limite 50MB) | `appleHealthParser.js`, `wearables.js` | ✅ commit a3565c0 |
+| 2 | 🔴 Bug | Modo claro não funciona na Metodologia | `Metodologia.jsx`, `index.css` | ✅ commit a3565c0 |
+| 3 | 🔴 Bug | `--bg-base` CSS var não existe — afeta Connect, WeeklyReport, Metodologia | `index.css` | ✅ commit a3565c0 |
+| 4 | 🟡 UX | Botão Relatório Semanal não visível sem recomendações | `Dashboard.jsx` | ✅ commit a3565c0 |
+| 5 | 🟡 UX | Aba "Registrar Sinais" — botões Wearable inúteis | `Dashboard.jsx` | ✅ commit a3565c0 |
+| 6 | 🟠 Feature | Responsivo iPhone (prioridade) + Android | todos os `.jsx` | ✅ commit 722d82f |
+| 7 | 🟢 Feature | Área do Médico (preview) | `MedicoView.jsx`, rota `/medico` | ✅ commit 722d82f |
+| 8 | 🟢 Feature | Streak diário + gamificação | backend + Dashboard badge | ✅ commit 722d82f |
+| 9 | ⭐ Surpresa | Mood Calendar (heatmap 90 dias) | `MoodCalendar.jsx` | ✅ commit 722d82f |
+| 10 | ⭐ Surpresa | Exercício de respiração interativo | `BreathingExercise.jsx` | ✅ commit 722d82f |
+| 11 | ⭐ Surpresa | Tendência preditiva ("risco em X dias") | `Dashboard.jsx`, `riskController.js` | ⬜ próximo |
 
 ---
 
@@ -304,28 +304,24 @@ mindguard-frontend/src/pages/Dashboard.jsx           ← exibe tendência no Ris
 ## ORDEM DE EXECUÇÃO
 
 ```
-Dia 1 (hoje):
+Dia 1 (09/jun):
   ✅ Escrever este plano no Obsidian
-  ⬜ BUG 1: Apple Health 185MB (sax + limit 250MB)
-  ⬜ BUG 2: Metodologia toggle fix (1 linha)
-  ⬜ BUG 3: --bg-base CSS var (3 linhas)
-  ⬜ UX 4: Botão relatório semanal sempre visível
-  ⬜ UX 5: Reorganizar aba Registrar Sinais + /api/wearables/status
+  ✅ BUG 1: Apple Health 185MB (sax + limit 250MB) — commit a3565c0
+  ✅ BUG 2: Metodologia toggle fix — commit a3565c0
+  ✅ BUG 3: --bg-base CSS var — commit a3565c0
+  ✅ UX 4: Botão relatório semanal sempre visível — commit a3565c0
+  ✅ UX 5: Reorganizar aba Registrar Sinais + /api/wearables/status — commit a3565c0
+  ✅ FEATURE 6: Responsivo iPhone (header, 44px targets, iOS zoom fix 16px) — commit 722d82f
+  ✅ FEATURE 7: Área do Médico (MedicoView.jsx + /medico route) — commit 722d82f
+  ✅ FEATURE 8: Streak badge + GET /api/signals/streak — commit 722d82f
+  ✅ FEATURE 9: Mood Calendar heatmap 90 dias — commit 722d82f
+  ✅ FEATURE 10: Exercício de Respiração (BreathingExercise.jsx) — commit 722d82f
 
-Dia 2:
-  ⬜ FEATURE 6: Responsivo iPhone (Dashboard header + RiskCard + inputs)
-  ⬜ FEATURE 7: Área do Médico (MedicoView.jsx)
-
-Dia 3:
-  ⬜ FEATURE 8: Streak + gamificação
-  ⬜ FEATURE 9: Mood Calendar heatmap
-  ⬜ FEATURE 10: Exercício de Respiração
-
-Dia 4 (antes de 15/jun às 19h):
-  ⬜ FEATURE 11: Tendência Preditiva
-  ⬜ Testes end-to-end em produção
-  ⬜ Atualizar APRESENTACAO.md com novos fluxos
-  ⬜ Git push final → Railway deploy
+Antes de 15/jun às 19h:
+  ⬜ FEATURE 11: Tendência Preditiva (GET /api/risk/trend + Dashboard)
+  ⬜ Testes end-to-end em produção com conta demo
+  ⬜ Verificar deploy Railway (backend + frontend)
+  ⬜ Git push final se houver ajustes
 ```
 
 ---

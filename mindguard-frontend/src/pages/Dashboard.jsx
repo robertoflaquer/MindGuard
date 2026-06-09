@@ -27,6 +27,9 @@ import {
   Flame,
   Wind,
   UserCheck,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from 'lucide-react'
 import { useThemeStore } from '../store/useThemeStore'
 import RiskCard from '../components/RiskCard'
@@ -169,6 +172,7 @@ export default function Dashboard() {
   const [wearableStatus, setWearableStatus] = useState(null)
   const [streak, setStreak] = useState(0)
   const [showBreathing, setShowBreathing] = useState(false)
+  const [trend, setTrend] = useState(null)
   const { isDark, toggle: toggleTheme } = useThemeStore()
 
   useEffect(() => {
@@ -180,6 +184,7 @@ export default function Dashboard() {
     fetchHistory(null, 20)
     fetchInsights()
     api.get('/api/signals/streak').then(r => setStreak(r.data?.data?.streak ?? 0)).catch(() => {})
+    api.get('/api/risk/trend').then(r => setTrend(r.data?.data ?? null)).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -321,7 +326,34 @@ export default function Dashboard() {
               {isRiskLoading ? (
                 <RiskCard isLoading />
               ) : currentRisk ? (
-                <RiskCard risk={currentRisk} onWhyClick={() => setShowRiskModal(true)} />
+                <>
+                  <RiskCard risk={currentRisk} onWhyClick={() => setShowRiskModal(true)} />
+                  {trend && trend.points >= 2 && (
+                    <div className="mt-3 flex items-center gap-2.5 px-4 py-2.5 rounded-xl"
+                      style={{
+                        background: trend.direction === 'up' ? 'var(--danger-bg)' : trend.direction === 'down' ? 'var(--stable-bg)' : 'var(--bg-card)',
+                        border: `1px solid ${trend.direction === 'up' ? 'rgba(239,68,68,0.25)' : trend.direction === 'down' ? 'rgba(45,212,191,0.25)' : 'var(--border)'}`,
+                      }}>
+                      {trend.direction === 'up'
+                        ? <TrendingUp className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--danger)' }} />
+                        : trend.direction === 'down'
+                        ? <TrendingDown className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--stable)' }} />
+                        : <Minus className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />}
+                      <p className="text-xs" style={{
+                        color: trend.direction === 'up' ? 'var(--danger)' : trend.direction === 'down' ? 'var(--stable)' : 'var(--text-muted)'
+                      }}>
+                        <span className="font-semibold">
+                          {trend.direction === 'up' ? `↑ +${trend.slope}pts/dia · tendência de alta` :
+                           trend.direction === 'down' ? `↓ ${trend.slope}pts/dia · tendência de melhora` :
+                           'Risco estável nos últimos dias'}
+                        </span>
+                        {trend.days_to_high_risk && (
+                          <span style={{ color: 'var(--danger)' }}> · pode atingir Risco Alto em ~{trend.days_to_high_risk} dias</span>
+                        )}
+                      </p>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="card text-center py-10">
                   <AlertTriangle className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />

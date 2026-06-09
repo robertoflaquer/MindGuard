@@ -14,6 +14,8 @@ router.get('/current', riskController.getCurrentRisk);
 
 router.get('/breakdown', riskController.getBreakdown);
 
+router.get('/trend', riskController.getTrend);
+
 router.get('/history', riskController.getHistory);
 
 router.post('/assess', riskController.triggerAssessment);

@@ -6,6 +6,7 @@
 :root,
 [data-theme="dark"] {
   --bg-deep:    #080F1E;
+  --bg-base:    #0A1524;
   --bg-surface: #0D1829;
   --bg-card:    #111F34;
   --bg-raised:  #192B45;
@@ -43,6 +44,7 @@
 /* ─── LIGHT MODE ──────────────────────────────────────── */
 [data-theme="light"] {
   --bg-deep:    #EFF4FC;
+  --bg-base:    #EFF4FC;
   --bg-surface: #FFFFFF;
   --bg-card:    #FFFFFF;
   --bg-raised:  #E8F0FC;

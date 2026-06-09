@@ -157,6 +157,13 @@ Base de conhecimento estruturada do projeto MindGuard — plataforma de monitora
 
 ---
 
+### 1️⃣3️⃣ [[Fase3-UX-Engajamento]]
+**Para**: Sprint de UX, responsivo e novas features (09/jun/2026+)
+**Contém**: 11 itens (bugs + UX + features surpresa), ordem de execução, arquivos a criar/modificar
+**Leia se**: Precisa saber o que implementar no Sprint 3 ou retomar contexto após compactação
+
+---
+
 ### 1️⃣2️⃣ [[Fase2-Sprint-Final]]
 **Para**: Plano de execução do Sprint Final (9–15/jun/2026)
 **Contém**:

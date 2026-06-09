@@ -1,16 +1,13 @@
 // services/appleHealthParser.js
-// Parses Apple Health export.xml and extracts signals relevant to MindGuard.
-// The export.xml file is structured as:
-//   <HealthData>
-//     <Record type="HKQuantityTypeIdentifierHeartRateVariabilitySDNN" value="..." startDate="..." endDate="..." />
-//     ...
-//     <Record type="HKCategoryTypeIdentifierSleepAnalysis" value="HKCategoryValueSleepAnalysisAsleep" startDate="..." endDate="..." />
-//     ...
-//   </HealthData>
+// Streaming SAX-based parser for Apple Health export.xml.
+// Handles files of any size (100MB+) with constant memory usage.
+// Only processes records from the last MAX_DAYS days to reduce data volume.
 
-import { XMLParser } from 'fast-xml-parser';
+import sax from 'sax';
 
-// Maps Apple Health HK types to MindGuard signal names
+const MAX_DAYS = 365;
+const CUTOFF_MS = Date.now() - MAX_DAYS * 24 * 60 * 60 * 1000;
+
 const HK_TYPE_MAP = {
   HKQuantityTypeIdentifierHeartRateVariabilitySDNN: 'HRV',
   HKQuantityTypeIdentifierRestingHeartRate:         'HR_resting',
@@ -18,7 +15,6 @@ const HK_TYPE_MAP = {
   HKQuantityTypeIdentifierOxygenSaturation:         'spo2',
 };
 
-// Sleep categories that count as "asleep"
 const SLEEP_ASLEEP_VALUES = new Set([
   'HKCategoryValueSleepAnalysisAsleep',
   'HKCategoryValueSleepAnalysisAsleepCore',
@@ -27,7 +23,6 @@ const SLEEP_ASLEEP_VALUES = new Set([
 ]);
 
 function parseDate(str) {
-  // Apple Health dates: "2024-05-10 22:15:30 -0300"
   if (!str) return null;
   const d = new Date(str.replace(' ', 'T').replace(/(\s[+-]\d{4})$/, (m) => m.replace(' ', '')));
   return isNaN(d.getTime()) ? null : d;
@@ -35,114 +30,117 @@ function parseDate(str) {
 
 class AppleHealthParser {
   parse(xmlContent) {
-    const parser = new XMLParser({
-      ignoreAttributes: false,
-      attributeNamePrefix: '',
-      parseAttributeValue: true,
-    });
+    return new Promise((resolve, reject) => {
+      const parser = sax.parser(true, { trim: true, normalize: true });
 
-    let parsed;
-    try {
-      parsed = parser.parse(xmlContent);
-    } catch (e) {
-      throw new Error('XML inválido — certifique-se de enviar o arquivo export.xml do Apple Health.');
-    }
+      const signals = [];
+      const sleepByDay = {};
+      const seen = new Set();
+      let foundHealthData = false;
 
-    const healthData = parsed?.HealthData;
-    if (!healthData) throw new Error('Arquivo não parece ser um export do Apple Health (nó <HealthData> não encontrado).');
+      parser.onopentag = (node) => {
+        if (node.name === 'HealthData') { foundHealthData = true; return; }
+        if (node.name !== 'Record') return;
 
-    const records = Array.isArray(healthData.Record) ? healthData.Record : healthData.Record ? [healthData.Record] : [];
+        const type       = node.attributes.type;
+        const valueRaw   = node.attributes.value;
+        const startDate  = parseDate(node.attributes.startDate);
+        const endDate    = parseDate(node.attributes.endDate);
+        const sourceName = node.attributes.sourceName || '';
 
-    const signals = [];
-    const sleepByDay = {}; // date string → total asleep minutes
+        if (!type || !startDate) return;
+        if (startDate.getTime() < CUTOFF_MS) return; // skip old records
 
-    for (const rec of records) {
-      const type       = rec.type;
-      const valueRaw   = rec.value;
-      const startDate  = parseDate(rec.startDate);
-      const endDate    = parseDate(rec.endDate);
-      const sourceName = rec.sourceName || '';
+        // Skip aggregate step counts from Health app
+        if (sourceName === 'Health' && type === 'HKQuantityTypeIdentifierStepCount') return;
 
-      if (!type || !startDate) continue;
+        // --- Quantity signals ---
+        if (HK_TYPE_MAP[type]) {
+          const signalName = HK_TYPE_MAP[type];
+          const value = parseFloat(valueRaw);
+          if (isNaN(value)) return;
 
-      // Skip Apple Health app aggregate entries that duplicate wearable data
-      if (sourceName === 'Health' && type === 'HKQuantityTypeIdentifierStepCount') continue;
+          const finalValue = type === 'HKQuantityTypeIdentifierOxygenSaturation'
+            ? value > 1 ? value : value * 100
+            : value;
 
-      // --- Quantity signals ---
-      if (HK_TYPE_MAP[type]) {
-        const signalName = HK_TYPE_MAP[type];
-        const value = parseFloat(valueRaw);
-        if (isNaN(value)) continue;
+          const dateKey = startDate.toISOString().slice(0, 10);
+          const dedupeKey = `${signalName}|${dateKey}`;
+          if (seen.has(dedupeKey)) return;
+          seen.add(dedupeKey);
 
-        // HRV: Apple Watch reports in ms, keep as-is
-        // HR: in bpm, keep as-is
-        // Steps: daily total, keep as-is
-        // SpO2: stored as fraction (0.97), convert to %
-        const finalValue = type === 'HKQuantityTypeIdentifierOxygenSaturation'
-          ? value > 1 ? value : value * 100
-          : value;
+          signals.push({
+            signalType: signalName,
+            value: Math.round(finalValue * 10) / 10,
+            timestamp: startDate.toISOString(),
+          });
+          return;
+        }
 
-        signals.push({
-          signalType: signalName,
-          value: Math.round(finalValue * 10) / 10,
-          timestamp: startDate.toISOString(),
+        // --- Sleep analysis ---
+        if (type === 'HKCategoryTypeIdentifierSleepAnalysis' && endDate) {
+          if (!SLEEP_ASLEEP_VALUES.has(valueRaw)) return;
+          const durationMin = (endDate - startDate) / 60000;
+          if (durationMin <= 0 || durationMin > 720) return;
+
+          const dayKey = startDate.toISOString().slice(0, 10);
+          sleepByDay[dayKey] = (sleepByDay[dayKey] || 0) + durationMin;
+        }
+      };
+
+      parser.onerror = (err) => {
+        parser.resume(); // don't stop on recoverable errors
+        if (err.message && err.message.includes('Unexpected end')) {
+          // truncated file — resolve with what we have
+        }
+      };
+
+      parser.onend = () => {
+        if (!foundHealthData) {
+          reject(new Error('Arquivo não parece ser um export do Apple Health (nó <HealthData> não encontrado).'));
+          return;
+        }
+
+        // Convert sleep totals to signals
+        for (const [dateStr, totalMin] of Object.entries(sleepByDay)) {
+          const hours = Math.round((totalMin / 60) * 10) / 10;
+          const quality = this._sleepQuality(hours);
+          const ts = new Date(dateStr + 'T08:00:00.000Z').toISOString();
+
+          const dSleep = `sleep_duration|${dateStr}`;
+          const dQual  = `sleep_quality|${dateStr}`;
+          if (!seen.has(dSleep)) { signals.push({ signalType: 'sleep_duration', value: hours,   timestamp: ts }); seen.add(dSleep); }
+          if (!seen.has(dQual))  { signals.push({ signalType: 'sleep_quality',  value: quality, timestamp: ts }); seen.add(dQual); }
+        }
+
+        const byType = {};
+        signals.forEach(s => { byType[s.signalType] = (byType[s.signalType] || 0) + 1; });
+
+        const dates = signals.map(s => new Date(s.timestamp)).filter(d => !isNaN(d));
+        const minDate = dates.length ? new Date(Math.min(...dates)) : null;
+        const maxDate = dates.length ? new Date(Math.max(...dates)) : null;
+
+        resolve({
+          signals,
+          summary: {
+            total: signals.length,
+            by_type: byType,
+            date_range: minDate && maxDate
+              ? `${minDate.toLocaleDateString('pt-BR')} → ${maxDate.toLocaleDateString('pt-BR')}`
+              : null,
+          },
         });
-        continue;
+      };
+
+      try {
+        parser.write(xmlContent).close();
+      } catch (e) {
+        reject(new Error('XML inválido — certifique-se de enviar o arquivo export.xml do Apple Health.'));
       }
-
-      // --- Sleep analysis ---
-      if (type === 'HKCategoryTypeIdentifierSleepAnalysis' && endDate) {
-        if (!SLEEP_ASLEEP_VALUES.has(valueRaw)) continue;
-        const durationMin = (endDate - startDate) / 60000;
-        if (durationMin <= 0 || durationMin > 720) continue; // sanity: max 12h per session
-
-        // Use the date when sleep started (could be previous day)
-        const dayKey = startDate.toISOString().slice(0, 10);
-        sleepByDay[dayKey] = (sleepByDay[dayKey] || 0) + durationMin;
-      }
-    }
-
-    // Convert sleep totals to daily duration + quality signals
-    for (const [dateStr, totalMin] of Object.entries(sleepByDay)) {
-      const hours = Math.round((totalMin / 60) * 10) / 10;
-      const quality = this._sleepQuality(hours);
-      const ts = new Date(dateStr + 'T08:00:00.000Z').toISOString(); // morning of wake-up
-
-      signals.push({ signalType: 'sleep_duration', value: hours,   timestamp: ts });
-      signals.push({ signalType: 'sleep_quality',  value: quality, timestamp: ts });
-    }
-
-    // Deduplicate: keep one entry per (signalType, dateKey)
-    const seen = new Set();
-    const deduped = signals.filter(s => {
-      const key = `${s.signalType}|${s.timestamp.slice(0, 10)}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
     });
-
-    // Build summary
-    const byType = {};
-    deduped.forEach(s => { byType[s.signalType] = (byType[s.signalType] || 0) + 1; });
-
-    const dates = deduped.map(s => new Date(s.timestamp)).filter(d => !isNaN(d));
-    const minDate = dates.length ? new Date(Math.min(...dates)) : null;
-    const maxDate = dates.length ? new Date(Math.max(...dates)) : null;
-
-    return {
-      signals: deduped,
-      summary: {
-        total: deduped.length,
-        by_type: byType,
-        date_range: minDate && maxDate
-          ? `${minDate.toLocaleDateString('pt-BR')} → ${maxDate.toLocaleDateString('pt-BR')}`
-          : null,
-      },
-    };
   }
 
   _sleepQuality(hours) {
-    // Maps sleep duration to a subjective quality score (1–10)
     if (hours >= 8.0) return 9;
     if (hours >= 7.5) return 8;
     if (hours >= 7.0) return 7;

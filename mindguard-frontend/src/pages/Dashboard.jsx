@@ -20,6 +20,10 @@ import {
   ScrollText,
   Building2,
   FlaskConical,
+  BarChart2,
+  Smartphone,
+  CheckCircle2,
+  WifiOff,
 } from 'lucide-react'
 import { useThemeStore } from '../store/useThemeStore'
 import RiskCard from '../components/RiskCard'
@@ -96,44 +100,44 @@ function QuestionnaireCard({ q }) {
   )
 }
 
-function SimulateWearableButton({ onDone }) {
-  const [loading, setLoading] = useState(false)
-  const [device, setDevice] = useState('apple_watch')
-
-  async function simulate() {
-    setLoading(true)
-    try {
-      await api.post('/api/signals/simulate', { device })
-      onDone?.()
-    } catch {
-      // ignore — wearable sim is demo only
-    } finally {
-      setLoading(false)
-    }
-  }
+function WearableStatusCard({ status, onConnect }) {
+  const connected = status?.apple_health?.connected
+  const lastSync  = status?.apple_health?.last_sync
+  const total     = status?.apple_health?.total_records ?? 0
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-      <select
-        value={device}
-        onChange={(e) => setDevice(e.target.value)}
-        className="input-field"
-        style={{ fontSize: '0.75rem', padding: '0.35rem 0.6rem', height: 'auto' }}
-      >
-        <option value="apple_watch">Apple Watch</option>
-        <option value="galaxy_watch">Galaxy Watch</option>
-      </select>
-      <button
-        onClick={simulate}
-        disabled={loading}
-        className="btn-ghost flex items-center gap-1.5 text-xs"
-        title="Simular leitura de wearable"
-        style={{ whiteSpace: 'nowrap' }}
-      >
-        <Activity className="w-3.5 h-3.5" />
-        {loading ? 'Importando…' : 'Simular Wearable'}
-      </button>
-    </div>
+    <button
+      onClick={onConnect}
+      className="w-full text-left rounded-2xl p-4 flex items-center gap-4 transition-all"
+      style={{
+        background: connected ? 'rgba(45,212,191,0.07)' : 'var(--bg-card)',
+        border: `1px solid ${connected ? 'rgba(45,212,191,0.3)' : 'var(--border)'}`,
+      }}
+    >
+      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-xl"
+        style={{ background: connected ? 'rgba(45,212,191,0.15)' : 'var(--bg-raised)' }}>
+        🍎
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-bold" style={{ color: 'var(--text-pri)' }}>Apple Health</p>
+          {connected
+            ? <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(45,212,191,0.15)', color: 'var(--jade)' }}>
+                <CheckCircle2 className="w-3 h-3" /> Conectado
+              </span>
+            : <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-raised)', color: 'var(--text-muted)' }}>
+                <WifiOff className="w-3 h-3" /> Não conectado
+              </span>
+          }
+        </div>
+        <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+          {connected
+            ? `${total} registros · Última sync ${lastSync ? formatDistanceToNow(new Date(lastSync), { addSuffix: true, locale: ptBR }) : '—'}`
+            : 'Importe seu export.xml para dados reais de HRV, sono e FC'}
+        </p>
+      </div>
+      <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
+    </button>
   )
 }
 
@@ -157,6 +161,7 @@ export default function Dashboard() {
 
   const [activeTab, setActiveTab] = useState('overview')
   const [showRiskModal, setShowRiskModal] = useState(false)
+  const [wearableStatus, setWearableStatus] = useState(null)
   const { isDark, toggle: toggleTheme } = useThemeStore()
 
   useEffect(() => {
@@ -171,6 +176,9 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (activeTab === 'overview') fetchCurrentRisk()
+    if (activeTab === 'signals') {
+      api.get('/api/wearables/status').then(r => setWearableStatus(r.data.data)).catch(() => {})
+    }
   }, [activeTab])
 
   const dueCount = due.filter((q) => q.is_due).length
@@ -193,68 +201,47 @@ export default function Dashboard() {
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => navigate('/treatment')}
-              className="btn-ghost flex items-center gap-1.5 text-sm"
-            >
+          <div className="flex items-center gap-1">
+            {/* Primary nav — visible on all screens */}
+            <button onClick={() => navigate('/treatment')} className="btn-ghost flex items-center gap-1.5 text-sm min-h-[44px] px-2" title="Tratamento">
               <Stethoscope className="w-4 h-4" />
               <span className="hidden sm:inline">Tratamento</span>
             </button>
-            <button
-              onClick={() => navigate('/prescriptions')}
-              className="btn-ghost flex items-center gap-1.5 text-sm"
-            >
-              <ScrollText className="w-4 h-4" />
-              <span className="hidden sm:inline">Prescrições</span>
-            </button>
-
-            <button
-              onClick={() => navigate('/contexts')}
-              className="btn-ghost flex items-center gap-1.5 text-sm"
-            >
+            <button onClick={() => navigate('/contexts')} className="btn-ghost flex items-center gap-1.5 text-sm min-h-[44px] px-2" title="Contextos">
               <Layers className="w-4 h-4" />
               <span className="hidden sm:inline">Contextos</span>
             </button>
-            <button
-              onClick={() => navigate('/metodologia')}
-              className="btn-ghost flex items-center gap-1.5 text-sm"
-              title="Embasamento científico do modelo de risco"
-            >
-              <FlaskConical className="w-4 h-4" />
-              <span className="hidden sm:inline">Metodologia</span>
-            </button>
 
-            <button
-              onClick={() => navigate('/empresa')}
-              className="btn-ghost flex items-center gap-1.5 text-sm"
-              style={{ color: 'var(--jade)' }}
-              title="Visão executiva B2B"
-            >
+            {/* Secondary nav — hidden on mobile */}
+            <button onClick={() => navigate('/prescriptions')} className="hidden sm:flex btn-ghost items-center gap-1.5 text-sm min-h-[44px] px-2">
+              <ScrollText className="w-4 h-4" />
+              <span className="hidden md:inline">Prescrições</span>
+            </button>
+            <button onClick={() => navigate('/metodologia')} className="hidden sm:flex btn-ghost items-center gap-1.5 text-sm min-h-[44px] px-2" title="Metodologia científica">
+              <FlaskConical className="w-4 h-4" />
+              <span className="hidden md:inline">Metodologia</span>
+            </button>
+            <button onClick={() => navigate('/empresa')} className="hidden sm:flex btn-ghost items-center gap-1.5 text-sm min-h-[44px] px-2" style={{ color: 'var(--jade)' }} title="Visão executiva B2B">
               <Building2 className="w-4 h-4" />
-              <span className="hidden sm:inline">Empresa</span>
+              <span className="hidden md:inline">Empresa</span>
             </button>
 
             {/* Theme toggle */}
-            <button
-              onClick={toggleTheme}
-              className="btn-ghost p-2 rounded-xl"
-              title={isDark ? 'Modo claro' : 'Modo escuro'}
-            >
+            <button onClick={toggleTheme} className="btn-ghost p-2 rounded-xl min-h-[44px] min-w-[44px]" title={isDark ? 'Modo claro' : 'Modo escuro'}>
               {isDark
                 ? <Sun  className="w-4 h-4" style={{ color: 'var(--attn)' }} />
                 : <Moon className="w-4 h-4" style={{ color: 'var(--accent)' }} />
               }
             </button>
 
-            <div className="w-px h-5 mx-0.5" style={{ background: 'var(--border-mid)' }} />
+            <div className="w-px h-5 mx-0.5 hidden sm:block" style={{ background: 'var(--border-mid)' }} />
 
-            <div className="text-right hidden sm:block">
+            <div className="text-right hidden md:block">
               <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Olá,</p>
               <p className="text-sm font-bold leading-tight" style={{ color: 'var(--text-pri)' }}>{user?.fullName}</p>
             </div>
 
-            <button onClick={handleLogout} className="btn-ghost flex items-center gap-1.5 text-sm ml-0.5">
+            <button onClick={handleLogout} className="btn-ghost flex items-center gap-1.5 text-sm min-h-[44px] px-2">
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Sair</span>
             </button>
@@ -345,6 +332,29 @@ export default function Dashboard() {
                 </div>
               </section>
             )}
+
+            {/* Weekly Report card — always visible */}
+            <section>
+              <button
+                onClick={() => navigate('/relatorio-semanal')}
+                className="w-full text-left rounded-2xl p-4 flex items-center gap-4 transition-all"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: '3px solid var(--accent)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-raised)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-card)' }}
+              >
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'var(--accent-glow)' }}>
+                  <BarChart2 className="w-5 h-5" style={{ color: 'var(--accent)' }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold" style={{ color: 'var(--text-pri)' }}>Relatório Semanal</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                    Análise detalhada da semana com recomendações personalizadas
+                  </p>
+                </div>
+                <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
+              </button>
+            </section>
 
             {/* Recommendations */}
             {recommendations.length > 0 && (
@@ -463,43 +473,57 @@ export default function Dashboard() {
 
         {/* Signals Tab */}
         {activeTab === 'signals' && (
-          <div className="animate-fade-up">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+          <div className="animate-fade-up space-y-8">
+
+            {/* Wearables section */}
+            <section className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Smartphone className="w-4 h-4" style={{ color: 'var(--jade)' }} />
+                <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                  Dispositivos
+                </p>
+              </div>
+              <WearableStatusCard
+                status={wearableStatus}
+                onConnect={() => navigate('/conectar')}
+              />
+              {/* Galaxy Watch — coming soon */}
+              <div className="w-full rounded-2xl p-4 flex items-center gap-4 opacity-50"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-xl"
+                  style={{ background: 'var(--bg-raised)' }}>⌚</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold" style={{ color: 'var(--text-pri)' }}>Galaxy Watch</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Em breve — Health Connect (Android)</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-raised)', color: 'var(--text-muted)' }}>Em breve</span>
+              </div>
+            </section>
+
+            {/* Manual entry */}
+            <section className="space-y-3">
               <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
-                Registrar Sinais
+                Registro Manual
               </p>
-              <SimulateWearableButton onDone={() => {
-                fetchRecentSignals()
-                addToast('info', 'Dados do wearable importados! Calculando risco...')
-                setTimeout(async () => {
-                  try {
-                    const updated = await fetchCurrentRisk()
-                    if (updated) {
-                      const label = RISK_LEVEL_LABELS[updated.risk_level] || updated.risk_level
-                      addToast('success', `Risco atualizado: ${label} (${Math.round(updated.risk_score ?? 0)}%)`)
+              <SignalForm
+                onSuccess={async () => {
+                  fetchRecentSignals()
+                  addToast('info', 'Sinais registrados! Calculando análise de risco...')
+                  setTimeout(async () => {
+                    try {
+                      const updated = await fetchCurrentRisk()
+                      if (updated) {
+                        const label = RISK_LEVEL_LABELS[updated.risk_level] || updated.risk_level
+                        const score = Math.round(updated.risk_score ?? 0)
+                        addToast('success', `Risco atualizado: ${label} (${score}%)`)
+                      }
+                    } catch {
+                      addToast('error', 'Não foi possível atualizar o risco. Tente novamente.')
                     }
-                  } catch { /* silent */ }
-                }, 5000)
-              }} />
-            </div>
-            <SignalForm
-              onSuccess={async () => {
-                fetchRecentSignals()
-                addToast('info', 'Sinais registrados! Calculando análise de risco...')
-                setTimeout(async () => {
-                  try {
-                    const updated = await fetchCurrentRisk()
-                    if (updated) {
-                      const label = RISK_LEVEL_LABELS[updated.risk_level] || updated.risk_level
-                      const score = Math.round(updated.risk_score ?? 0)
-                      addToast('success', `Risco atualizado: ${label} (${score}%)`)
-                    }
-                  } catch {
-                    addToast('error', 'Não foi possível atualizar o risco. Tente novamente.')
-                  }
-                }, 5000)
-              }}
-            />
+                  }, 5000)
+                }}
+              />
+            </section>
           </div>
         )}
       </main>

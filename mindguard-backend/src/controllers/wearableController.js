@@ -6,6 +6,34 @@ import axios from 'axios';
 import AdmZip from 'adm-zip';
 
 class WearableController {
+  async getStatus(req, res, next) {
+    try {
+      const userId = req.user.userId;
+      const r = await query(
+        `SELECT COUNT(*) AS total, MAX(timestamp) AS last_sync
+         FROM user_signals
+         WHERE user_id = $1
+           AND source_metadata->>'source' = 'apple_health'
+           AND timestamp >= NOW() - INTERVAL '90 days'`,
+        [userId]
+      );
+      const row = r.rows[0];
+      const total = parseInt(row.total, 10);
+      res.status(200).json({
+        success: true,
+        data: {
+          apple_health: {
+            connected: total > 0,
+            last_sync: row.last_sync || null,
+            total_records: total,
+          },
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async importAppleHealth(req, res, next) {
     try {
       const userId = req.user.userId;
@@ -28,7 +56,7 @@ class WearableController {
 
       let parsed;
       try {
-        parsed = appleHealthParser.parse(xmlContent);
+        parsed = await appleHealthParser.parse(xmlContent);
       } catch (parseError) {
         return res.status(422).json({ success: false, error: parseError.message });
       }

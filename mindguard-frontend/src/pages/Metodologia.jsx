@@ -217,7 +217,7 @@ const REFS = [
 
 export default function Metodologia() {
   const navigate = useNavigate()
-  const { isDark, toggleTheme } = useThemeStore()
+  const { isDark, toggle: toggleTheme } = useThemeStore()
   const [showRefs, setShowRefs] = useState(false)
 
   return (

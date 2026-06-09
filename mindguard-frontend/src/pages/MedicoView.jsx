@@ -74,7 +74,7 @@ function RiskGauge({ score }) {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-extrabold tabular-nums" style={{ color: rl.color }}>{score}</span>
+          <span className="text-3xl font-extrabold tabular-nums" style={{ color: rl.color }}>{Math.round(score)}</span>
           <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>/ 100</span>
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function MedicoView() {
     if (!user) { navigate('/login'); return }
     Promise.all([
       api.get('/api/risk/current').catch(() => ({ data: null })),
-      api.get('/api/signals/recent?limit=30').catch(() => ({ data: { data: [] } })),
+      api.get('/api/signals/recent?limit=100').catch(() => ({ data: { data: [] } })),
       api.get('/api/questionnaires/history').catch(() => ({ data: { data: [] } })),
       api.get('/api/contexts/active').catch(() => ({ data: { data: [] } })),
       api.get('/api/appointments').catch(() => ({ data: { data: [] } })),
@@ -133,6 +133,21 @@ export default function MedicoView() {
   signals.forEach((s) => {
     if (!latestByType[s.signal_type]) latestByType[s.signal_type] = s
   })
+
+  // Compute 7-day average per signal type
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  const avgAccum = {}
+  signals.forEach((s) => {
+    const val = parseFloat(s.value)
+    if (!isNaN(val) && new Date(s.timestamp) >= sevenDaysAgo) {
+      if (!avgAccum[s.signal_type]) avgAccum[s.signal_type] = { sum: 0, n: 0 }
+      avgAccum[s.signal_type].sum += val
+      avgAccum[s.signal_type].n++
+    }
+  })
+  const avgByType = Object.fromEntries(
+    Object.entries(avgAccum).map(([k, v]) => [k, Math.round((v.sum / v.n) * 10) / 10])
+  )
 
   // Group questionnaire history by code — take latest per code
   const latestQ = {}
@@ -309,6 +324,13 @@ export default function MedicoView() {
                           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                             {formatDistanceToNow(new Date(sig.timestamp), { addSuffix: true, locale: ptBR })}
                           </p>
+                          {avgByType[key] != null && avgAccum[key]?.n > 1 && (
+                            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                              Média 7d: <span className="font-semibold" style={{ color: meta.color }}>
+                                {avgByType[key]}{meta.unit}
+                              </span>
+                            </p>
+                          )}
                         </div>
                       </div>
                     )

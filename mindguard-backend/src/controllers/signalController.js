@@ -104,10 +104,19 @@ class SignalController {
   async getStreak(req, res, next) {
     try {
       const userId = req.user.userId;
+      // Use created_at (insertion date) so that bulk imports (Apple Health, demo seeder)
+      // only count as 1 day, not as historical consecutive days.
+      // Also count days with questionnaire responses as active days.
       const r = await query(
-        `SELECT DISTINCT DATE(timestamp AT TIME ZONE 'UTC') AS day
-         FROM user_signals
-         WHERE user_id = $1 AND timestamp >= NOW() - INTERVAL '90 days'
+        `SELECT day FROM (
+           SELECT DISTINCT DATE(created_at AT TIME ZONE 'UTC') AS day
+           FROM user_signals
+           WHERE user_id = $1 AND created_at >= NOW() - INTERVAL '90 days'
+           UNION
+           SELECT DISTINCT DATE(completed_at AT TIME ZONE 'UTC')
+           FROM questionnaire_responses
+           WHERE user_id = $1 AND is_valid = TRUE AND completed_at >= NOW() - INTERVAL '90 days'
+         ) AS active_days
          ORDER BY day DESC`,
         [userId]
       );
@@ -117,7 +126,7 @@ class SignalController {
       today.setUTCHours(0, 0, 0, 0);
       const todayStr = today.toISOString().slice(0, 10);
 
-      // Start from today; if no data today, allow starting from yesterday
+      // Start from today; if no activity today, allow starting from yesterday
       const startOffset = dayStrs.has(todayStr) ? 0 : 1;
       let streak = 0;
       for (let i = startOffset; i < 90; i++) {

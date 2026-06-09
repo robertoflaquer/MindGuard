@@ -234,6 +234,10 @@ export default function Dashboard() {
               <FlaskConical className="w-4 h-4" />
               <span className="hidden md:inline">Metodologia</span>
             </button>
+            <button onClick={() => navigate('/medico')} className="hidden sm:flex btn-ghost items-center gap-1.5 text-sm min-h-[44px] px-2" style={{ color: '#818CF8' }} title="Área do médico">
+              <UserCheck className="w-4 h-4" />
+              <span className="hidden md:inline">Médico</span>
+            </button>
             <button onClick={() => navigate('/empresa')} className="hidden sm:flex btn-ghost items-center gap-1.5 text-sm min-h-[44px] px-2" style={{ color: 'var(--jade)' }} title="Visão executiva B2B">
               <Building2 className="w-4 h-4" />
               <span className="hidden md:inline">Empresa</span>
@@ -328,31 +332,34 @@ export default function Dashboard() {
               ) : currentRisk ? (
                 <>
                   <RiskCard risk={currentRisk} onWhyClick={() => setShowRiskModal(true)} />
-                  {trend && trend.points >= 2 && (
-                    <div className="mt-3 flex items-center gap-2.5 px-4 py-2.5 rounded-xl"
-                      style={{
-                        background: trend.direction === 'up' ? 'var(--danger-bg)' : trend.direction === 'down' ? 'var(--stable-bg)' : 'var(--bg-card)',
-                        border: `1px solid ${trend.direction === 'up' ? 'rgba(239,68,68,0.25)' : trend.direction === 'down' ? 'rgba(45,212,191,0.25)' : 'var(--border)'}`,
-                      }}>
-                      {trend.direction === 'up'
-                        ? <TrendingUp className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--danger)' }} />
-                        : trend.direction === 'down'
-                        ? <TrendingDown className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--stable)' }} />
-                        : <Minus className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />}
-                      <p className="text-xs" style={{
-                        color: trend.direction === 'up' ? 'var(--danger)' : trend.direction === 'down' ? 'var(--stable)' : 'var(--text-muted)'
-                      }}>
-                        <span className="font-semibold">
-                          {trend.direction === 'up' ? `↑ +${trend.slope}pts/dia · tendência de alta` :
-                           trend.direction === 'down' ? `↓ ${trend.slope}pts/dia · tendência de melhora` :
-                           'Risco estável nos últimos dias'}
-                        </span>
-                        {trend.days_to_high_risk && (
-                          <span style={{ color: 'var(--danger)' }}> · pode atingir Risco Alto em ~{trend.days_to_high_risk} dias</span>
-                        )}
-                      </p>
-                    </div>
-                  )}
+                  {trend && trend.points >= 2 && (() => {
+                    const isUp   = trend.direction === 'up'
+                    const isDown = trend.direction === 'down'
+                    const tColor = isUp ? 'var(--danger)' : isDown ? 'var(--stable)' : 'var(--text-muted)'
+                    const tBg    = isUp ? 'var(--danger-bg)' : isDown ? 'var(--stable-bg)' : 'var(--bg-card)'
+                    const tBorder= isUp ? 'rgba(239,68,68,0.25)' : isDown ? 'rgba(45,212,191,0.25)' : 'var(--border)'
+                    const Icon   = isUp ? TrendingUp : isDown ? TrendingDown : Minus
+                    const label  = isUp ? 'Tendência de alta' : isDown ? 'Tendência de melhora' : 'Risco estável'
+                    const delta  = isUp ? `+${Math.abs(trend.slope)}` : isDown ? `−${Math.abs(trend.slope)}` : null
+                    return (
+                      <div className="mt-3 flex gap-3 px-4 py-3 rounded-xl items-start"
+                        style={{ background: tBg, border: `1px solid ${tBorder}` }}>
+                        <Icon className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: tColor }} />
+                        <div>
+                          <p className="text-xs font-bold" style={{ color: tColor }}>{label}</p>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                            {delta && <>{delta} pts/dia nos últimos {trend.points} avaliações</>}
+                            {!delta && 'Sem variação significativa recente'}
+                          </p>
+                          {trend.days_to_high_risk && (
+                            <p className="text-xs mt-1 font-semibold" style={{ color: 'var(--danger)' }}>
+                              ⚠ Pode atingir Risco Alto em ~{trend.days_to_high_risk} dias
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </>
               ) : (
                 <div className="card text-center py-10">
@@ -386,7 +393,7 @@ export default function Dashboard() {
             )}
 
             {/* Quick action cards row */}
-            <section className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 onClick={() => navigate('/relatorio-semanal')}
                 className="text-left rounded-2xl p-4 flex items-center gap-3 transition-all"
@@ -423,23 +430,6 @@ export default function Dashboard() {
                 <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
               </button>
 
-              <button
-                onClick={() => navigate('/medico')}
-                className="text-left rounded-2xl p-4 flex items-center gap-3 transition-all"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: '3px solid #818CF8' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-raised)' }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-card)' }}
-              >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(129,140,248,0.12)' }}>
-                  <UserCheck className="w-4 h-4" style={{ color: '#818CF8' }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold" style={{ color: 'var(--text-pri)' }}>Área do Médico</p>
-                  <p className="text-xs mt-0.5 hidden sm:block" style={{ color: 'var(--text-muted)' }}>Resumo clínico do paciente</p>
-                </div>
-                <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
-              </button>
             </section>
 
             {/* Recommendations */}
@@ -484,25 +474,6 @@ export default function Dashboard() {
 
             {/* Treatment CTA */}
             <section style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <button
-                onClick={() => navigate('/conectar')}
-                className="w-full text-left rounded-2xl p-5 flex items-center gap-4 transition-all"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: '3px solid var(--jade)' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-raised)' }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-card)' }}
-              >
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-2xl"
-                  style={{ background: 'rgba(45,212,191,0.12)' }}>
-                  🍎
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm" style={{ color: 'var(--text-pri)' }}>Conectar Apple Health</p>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                    Importe HRV, sono e FC reais do Apple Watch
-                  </p>
-                </div>
-                <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
-              </button>
               <button
                 onClick={() => navigate('/treatment')}
                 className="w-full text-left rounded-2xl p-5 flex items-center gap-4 transition-all group"

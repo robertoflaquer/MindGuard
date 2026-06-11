@@ -114,7 +114,7 @@ export default function Welcome() {
         )}
 
         <p className="text-xs mt-8" style={{ color: 'var(--text-muted)' }}>
-          A demo carrega um colaborador fictício com 30 dias de sinais reais — sem precisar criar conta.
+          A demo carrega um colaborador fictício com 90 dias de sinais reais — sem precisar criar conta.
         </p>
       </section>
 
@@ -202,10 +202,10 @@ export default function Welcome() {
               </Link>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <MiniMetric icon={<Heart className="w-5 h-5" />} label="Colaboradores monitorados" value="—" />
-              <MiniMetric icon={<LineChart className="w-5 h-5" />} label="Em risco moderado" value="—" />
-              <MiniMetric icon={<ShieldCheck className="w-5 h-5" />} label="Encaminhamentos no mês" value="—" />
-              <MiniMetric icon={<Activity className="w-5 h-5" />} label="Tempo médio até intervenção" value="—" />
+              <MiniMetric icon={<Heart className="w-5 h-5" />} label="Colaboradores monitorados" value="247" />
+              <MiniMetric icon={<LineChart className="w-5 h-5" />} label="Em risco moderado" value="38" />
+              <MiniMetric icon={<ShieldCheck className="w-5 h-5" />} label="Encaminhamentos no mês" value="12" />
+              <MiniMetric icon={<Activity className="w-5 h-5" />} label="Tempo médio até intervenção" value="2.4d" />
             </div>
           </div>
         </div>
@@ -217,7 +217,7 @@ export default function Welcome() {
           Veja como funciona em 60 segundos
         </h2>
         <p className="text-base mb-8" style={{ color: 'var(--text-muted)' }}>
-          Abra a demonstração com um colaborador fictício já populado com 30 dias de dados, questionários respondidos e contexto ativo.
+          Abra a demonstração com um colaborador fictício já populado com 90 dias de dados, questionários respondidos e contexto ativo.
         </p>
         <button
           onClick={handleDemo}

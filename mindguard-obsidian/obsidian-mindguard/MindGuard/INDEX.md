@@ -164,6 +164,13 @@ Base de conhecimento estruturada do projeto MindGuard — plataforma de monitora
 
 ---
 
+### 1️⃣4️⃣ [[Apresentacao-Estrategia]]
+**Para**: Estratégia final dos 4 dias antes da apresentação FIAP × CarePlus (15/jun/2026)
+**Contém**: cenário escolhido, polimentos, features novas, cronograma dia-a-dia, roteiro de pitch 10-15 min, plano B
+**Leia se**: Precisa saber o que fazer a cada dia até 15/jun ou ensaiar o pitch
+
+---
+
 ### 1️⃣2️⃣ [[Fase2-Sprint-Final]]
 **Para**: Plano de execução do Sprint Final (9–15/jun/2026)
 **Contém**:

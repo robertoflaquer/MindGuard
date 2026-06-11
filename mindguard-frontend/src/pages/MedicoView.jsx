@@ -32,15 +32,23 @@ const Q_META = {
 }
 
 const SIGNAL_META = {
-  HRV:            { label: 'HRV',           unit: 'ms',  Icon: Activity,  color: '#60A5FA', ref: '>50ms ideal' },
-  HR_resting:     { label: 'FC Repouso',    unit: 'bpm', Icon: Heart,     color: '#F87171', ref: '60–100 bpm' },
-  sleep_duration: { label: 'Sono',          unit: 'h',   Icon: MoonIcon,  color: '#818CF8', ref: '7–9h ideal' },
-  sleep_quality:  { label: 'Qualidade Sono',unit: '/10', Icon: MoonIcon,  color: '#A78BFA', ref: '≥7 ideal' },
-  steps:          { label: 'Passos',        unit: '',    Icon: Footprints, color: '#34D399', ref: '>8.000/dia' },
-  spo2:           { label: 'SpO₂',          unit: '%',   Icon: Activity,  color: '#2DD4BF', ref: '≥95%' },
-  stress_level:   { label: 'Estresse',      unit: '/10', Icon: Brain,     color: '#FB923C', ref: '<5 ideal' },
-  mood:           { label: 'Humor',         unit: '/10', Icon: Brain,     color: '#2DD4BF', ref: '>6 ideal' },
-  energy_level:   { label: 'Energia',       unit: '/10', Icon: Activity,  color: '#FBBF24', ref: '>6 ideal' },
+  HRV:            { label: 'HRV',           unit: 'ms',  Icon: Activity,  color: '#60A5FA', ref: '>50ms ideal',  decimals: 0 },
+  HR_resting:     { label: 'FC Repouso',    unit: 'bpm', Icon: Heart,     color: '#F87171', ref: '60-100 bpm',   decimals: 0 },
+  sleep_duration: { label: 'Sono',          unit: 'h',   Icon: MoonIcon,  color: '#818CF8', ref: '7-9h ideal',   decimals: 1 },
+  sleep_quality:  { label: 'Qualidade Sono',unit: '/10', Icon: MoonIcon,  color: '#A78BFA', ref: '≥7 ideal',     decimals: 0 },
+  steps:          { label: 'Passos',        unit: '',    Icon: Footprints, color: '#34D399', ref: '>8.000/dia', decimals: 0, isInt: true },
+  spo2:           { label: 'SpO₂',          unit: '%',   Icon: Activity,  color: '#2DD4BF', ref: '≥95%',         decimals: 1 },
+  stress_level:   { label: 'Estresse',      unit: '/10', Icon: Brain,     color: '#FB923C', ref: '<5 ideal',     decimals: 0 },
+  mood:           { label: 'Humor',         unit: '/10', Icon: Brain,     color: '#2DD4BF', ref: '>6 ideal',     decimals: 0 },
+  energy_level:   { label: 'Energia',       unit: '/10', Icon: Activity,  color: '#FBBF24', ref: '>6 ideal',     decimals: 0 },
+}
+
+function formatSignal(value, meta) {
+  const n = parseFloat(value)
+  if (isNaN(n)) return value
+  if (meta.isInt) return Math.round(n).toLocaleString('pt-BR')
+  if (meta.decimals === 0) return Math.round(n).toString()
+  return n.toFixed(meta.decimals)
 }
 
 const RISK_LEVEL = (score) =>
@@ -318,7 +326,7 @@ export default function MedicoView() {
                         </div>
                         <div className="text-right">
                           <p className="text-sm font-bold tabular-nums" style={{ color: meta.color }}>
-                            {typeof sig.value === 'number' ? sig.value.toFixed(sig.value % 1 === 0 ? 0 : 1) : sig.value}
+                            {formatSignal(sig.value, meta)}
                             <span className="text-xs font-normal ml-0.5" style={{ color: 'var(--text-muted)' }}>{meta.unit}</span>
                           </p>
                           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -327,7 +335,7 @@ export default function MedicoView() {
                           {avgByType[key] != null && avgAccum[key]?.n > 1 && (
                             <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                               Média 7d: <span className="font-semibold" style={{ color: meta.color }}>
-                                {avgByType[key]}{meta.unit}
+                                {formatSignal(avgByType[key], meta)}{meta.unit}
                               </span>
                             </p>
                           )}

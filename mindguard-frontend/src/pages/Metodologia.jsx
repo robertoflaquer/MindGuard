@@ -254,7 +254,7 @@ export default function Metodologia() {
           </h1>
           <p className="text-base max-w-2xl mx-auto" style={{ color: 'var(--text-sec)' }}>
             O MindGuard combina instrumentos psicométricos validados clinicamente com biomarcadores
-            fisiológicos para gerar um índice de risco personalizado — baseado em mais de 25 referências científicas.
+            fisiológicos para gerar um índice de risco personalizado, baseado em mais de 25 referências científicas.
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-2">
             {[
@@ -282,7 +282,7 @@ export default function Metodologia() {
             <p className="text-sm" style={{ color: 'var(--text-sec)' }}>
               O score de risco combina duas fontes de dados com pesos diferentes, ajustados pelo contexto de vida do usuário.
               A distribuição 70/30 reflete o consenso da literatura clínica: o DSM-5 e a CID-11 usam auto-relato como
-              critério <em>primário</em> de diagnóstico em saúde mental — biomarcadores são corroborantes, não definidores.
+              critério <em>primário</em> de diagnóstico em saúde mental, biomarcadores são corroborantes, não definidores.
             </p>
 
             <div className="space-y-5">
@@ -434,10 +434,10 @@ export default function Metodologia() {
             </div>
             <ul className="space-y-2 text-xs" style={{ color: 'var(--text-sec)' }}>
               {[
-                'O MindGuard é ferramenta de rastreio preventivo — não substitui avaliação profissional.',
+                'O MindGuard é ferramenta de rastreio preventivo, não substitui avaliação profissional.',
                 'Sem validação clínica formal ainda: o modelo não foi submetido a estudo controlado com grupo de comparação.',
                 'Baseline individual requer 7–14 dias de dados; novos usuários têm menor precisão.',
-                'HRV via PPG (wearable) é menos preciso que ECG clínico — suficiente para rastreio, não diagnóstico.',
+                'HRV via PPG (wearable) é menos preciso que ECG clínico, suficiente para rastreio, não diagnóstico.',
                 'Questionários têm intervalos mínimos: PSS-10 foi desenvolvido para uso a cada 4 semanas.',
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2">
@@ -482,7 +482,7 @@ export default function Metodologia() {
             Versão 1.0 · jun/2026 · Roberto Flaquer / FIAP × CarePlus
           </p>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            Todos os questionários (PSS-10, GAD-7, CBI, OLBI) são de domínio público — sem royalties.
+            Todos os questionários (PSS-10, GAD-7, CBI, OLBI) são de domínio público, sem royalties.
           </p>
         </footer>
 

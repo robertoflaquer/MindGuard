@@ -99,7 +99,7 @@ export default function Enterprise() {
           <div className="flex-1">
             <div className="text-sm font-bold mb-0.5">Preview · MindGuard for Business</div>
             <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              Visão executiva do produto B2B em desenvolvimento. Dados desta tela são demonstrativos — em produção, virão da base CarePlus de beneficiários com anonimização por departamento.
+              Visão executiva do produto B2B em desenvolvimento. Dados desta tela são demonstrativos. Em produção, virão da base CarePlus de beneficiários com anonimização por departamento.
             </div>
           </div>
         </div>
@@ -238,7 +238,7 @@ export default function Enterprise() {
                 MindGuard chega aonde o colaborador já está
               </h2>
               <p className="text-sm sm:text-base leading-relaxed mb-5" style={{ color: 'var(--text-muted)' }}>
-                Bot nativo do <strong style={{ color: 'var(--text-pri)' }}>Microsoft Teams</strong> faz o check-in diário direto no chat. Sem instalar app novo, sem aderência baixa — a saúde mental entra no fluxo de trabalho existente.
+                Bot nativo do <strong style={{ color: 'var(--text-pri)' }}>Microsoft Teams</strong> faz o check-in diário direto no chat. Sem instalar app novo, sem aderência baixa. A saúde mental entra no fluxo de trabalho existente.
               </p>
 
               <ol className="space-y-3 text-sm">

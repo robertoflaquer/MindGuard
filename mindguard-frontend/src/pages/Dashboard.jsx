@@ -108,6 +108,28 @@ function QuestionnaireCard({ q }) {
   )
 }
 
+function AppleHealthIcon({ size = 18, color = 'currentColor' }) {
+  // Heart-pulse glyph clean para representar Apple Health
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      <path d="M3.22 12h5l1.5-3 3 6 1.5-3h7.5"/>
+    </svg>
+  )
+}
+
+function GalaxyWatchIcon({ size = 18, color = 'currentColor' }) {
+  // Smartwatch outline clean
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="12" cy="12" r="6"/>
+      <polyline points="9 4 9.5 1.5 14.5 1.5 15 4"/>
+      <polyline points="9 20 9.5 22.5 14.5 22.5 15 20"/>
+      <circle cx="12" cy="12" r="1.5" fill={color}/>
+    </svg>
+  )
+}
+
 function WearableStatusCard({ status, onConnect }) {
   const connected = status?.apple_health?.connected
   const lastSync  = status?.apple_health?.last_sync
@@ -122,9 +144,9 @@ function WearableStatusCard({ status, onConnect }) {
         border: `1px solid ${connected ? 'rgba(45,212,191,0.3)' : 'var(--border)'}`,
       }}
     >
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-xl"
+      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
         style={{ background: connected ? 'rgba(45,212,191,0.15)' : 'var(--bg-raised)' }}>
-        🍎
+        <AppleHealthIcon size={20} color={connected ? 'var(--jade)' : 'var(--text-muted)'} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
@@ -279,7 +301,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-3">
               <ClipboardList className="w-4 h-4 flex-shrink-0" />
               <p className="text-sm font-medium text-left">
-                {dueCount} questionário{dueCount > 1 ? 's' : ''} pendente{dueCount > 1 ? 's' : ''} — responda para melhorar a precisão da análise.
+                {dueCount} questionário{dueCount > 1 ? 's' : ''} pendente{dueCount > 1 ? 's' : ''}. Responda para melhorar a precisão da análise.
               </p>
             </div>
             <ChevronRight className="w-4 h-4 flex-shrink-0" />
@@ -289,9 +311,9 @@ export default function Dashboard() {
         {/* Streak badge */}
         {streak > 0 && (
           <div className="mb-5 flex items-center gap-2 w-fit px-4 py-2 rounded-full"
-            style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.3)' }}>
-            <Flame className="w-4 h-4" style={{ color: '#FBBF24' }} />
-            <span className="text-sm font-bold" style={{ color: '#FBBF24' }}>
+            style={{ background: 'rgba(167,139,250,0.14)', border: '1px solid rgba(167,139,250,0.35)' }}>
+            <Flame className="w-4 h-4" style={{ color: '#A78BFA', fill: '#A78BFA' }} />
+            <span className="text-sm font-bold" style={{ color: '#A78BFA' }}>
               {streak} {streak === 1 ? 'dia' : 'dias'} seguidos
             </span>
             <span className="text-xs" style={{ color: 'var(--text-muted)' }}>· Continue assim!</span>
@@ -552,11 +574,13 @@ export default function Dashboard() {
               {/* Galaxy Watch — coming soon */}
               <div className="w-full rounded-2xl p-4 flex items-center gap-4 opacity-50"
                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-xl"
-                  style={{ background: 'var(--bg-raised)' }}>⌚</div>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'var(--bg-raised)' }}>
+                  <GalaxyWatchIcon size={20} color="var(--text-muted)" />
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold" style={{ color: 'var(--text-pri)' }}>Galaxy Watch</p>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Em breve — Health Connect (Android)</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Em breve, via Health Connect (Android)</p>
                 </div>
                 <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-raised)', color: 'var(--text-muted)' }}>Em breve</span>
               </div>

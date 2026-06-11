@@ -120,9 +120,12 @@ export default function Connect() {
 
         {/* Hero */}
         <section className="text-center space-y-3 animate-fade-up">
-          <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl"
+          <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center"
             style={{ background: 'rgba(45,212,191,0.12)', border: '1px solid rgba(45,212,191,0.25)' }}>
-            🍎
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--jade)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              <path d="M3.22 12h5l1.5-3 3 6 1.5-3h7.5"/>
+            </svg>
           </div>
           <h1 className="text-2xl font-extrabold" style={{ color: 'var(--text-pri)' }}>
             Importe seus dados do Apple Watch
@@ -279,7 +282,7 @@ export default function Connect() {
           <p className="text-xs font-semibold" style={{ color: 'var(--text-sec)' }}>🔒 Privacidade e Segurança</p>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
             Seu arquivo é processado no servidor e os dados extraídos ficam vinculados apenas à sua conta.
-            O arquivo original não é armazenado — apenas os valores numéricos são salvos.
+            O arquivo original não é armazenado, apenas os valores numéricos são salvos.
             Você pode excluir seus dados a qualquer momento nas configurações.
           </p>
         </section>

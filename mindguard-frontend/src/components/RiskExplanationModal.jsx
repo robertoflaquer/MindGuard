@@ -187,7 +187,7 @@ export default function RiskExplanationModal({ risk, onClose }) {
           {!loading && data?.signal_deviations?.length > 0 && (
             <section className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                Sinais — Atual vs Referência (7 dias)
+                Sinais: atual vs referência (7 dias)
               </p>
               <div>
                 {data.signal_deviations.map((s) => <SignalRow key={s.name} signal={s} />)}

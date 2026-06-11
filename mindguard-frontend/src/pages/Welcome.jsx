@@ -114,7 +114,7 @@ export default function Welcome() {
         )}
 
         <p className="text-xs mt-8" style={{ color: 'var(--text-muted)' }}>
-          A demo carrega um colaborador fictício com 90 dias de sinais reais — sem precisar criar conta.
+          A demo carrega um colaborador fictício com 90 dias de sinais reais, sem precisar criar conta.
         </p>
       </section>
 
@@ -134,7 +134,7 @@ export default function Welcome() {
             Como o MindGuard funciona
           </h2>
           <p className="text-base sm:text-lg max-w-2xl mx-auto" style={{ color: 'var(--text-muted)' }}>
-            Três fontes de dados se cruzam para gerar um score de risco confiável — não um diagnóstico isolado.
+            Três fontes de dados se cruzam para gerar um score de risco confiável, não um diagnóstico isolado.
           </p>
         </div>
 
@@ -142,12 +142,12 @@ export default function Welcome() {
           <FeatureCard
             icon={<Watch className="w-6 h-6" />}
             title="1. Sinais biométricos"
-            text="HRV, frequência cardíaca, sono, energia, humor e estresse — capturados por wearables (Apple Watch, Galaxy Watch) ou inseridos manualmente."
+            text="HRV, frequência cardíaca, sono, energia, humor e estresse. Capturados por wearables (Apple Watch, Galaxy Watch) ou inseridos manualmente."
           />
           <FeatureCard
             icon={<Brain className="w-6 h-6" />}
             title="2. Questionários clínicos"
-            text="PSS-10, GAD-7, CBI, OLBI e Check-in Diário — escalas validadas internacionalmente para estresse, ansiedade e burnout."
+            text="PSS-10, GAD-7, CBI, OLBI e Check-in Diário. Escalas validadas internacionalmente para estresse, ansiedade e burnout."
           />
           <FeatureCard
             icon={<Activity className="w-6 h-6" />}
@@ -188,7 +188,7 @@ export default function Welcome() {
                 Pensado para o ecossistema CarePlus
               </h2>
               <p className="text-base leading-relaxed mb-6" style={{ color: 'var(--text-muted)' }}>
-                Integração nativa com o cadastro de beneficiários CarePlus. RH e medicina ocupacional recebem indicadores agregados e anônimos — sem ferir privacidade individual.
+                Integração nativa com o cadastro de beneficiários CarePlus. RH e medicina ocupacional recebem indicadores agregados e anônimos, sem ferir privacidade individual.
               </p>
               <ul className="space-y-3 text-sm mb-6">
                 <Bullet>Indicadores agregados por unidade, departamento e cargo</Bullet>

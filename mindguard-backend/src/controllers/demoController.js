@@ -139,6 +139,23 @@ class DemoController {
           );
         }
 
+        // 4b. Popula 30 daily check-ins (1 por dia) para alimentar streak + histórico
+        if (qTypeIds.DAILY_CHECKIN) {
+          for (let dayIndex = 30; dayIndex >= 0; dayIndex--) {
+            const d = degradation(dayIndex);
+            const date = new Date(); date.setDate(date.getDate() - dayIndex);
+            date.setHours(8, 0, 0, 0);
+            // Score 0-30: dias bons ~6-10, dias ruins ~18-26
+            const ciScore = Math.round(Math.min(28, Math.max(4, 6 + d * 18 + (Math.random() - 0.5) * 3)));
+            const responses = { q1: Math.round(ciScore / 3), q2: Math.round(ciScore / 3), q3: Math.round(ciScore / 3) };
+            await client.query(
+              `INSERT INTO questionnaire_responses (user_id, questionnaire_type_id, responses, total_score, started_at, completed_at, duration_seconds)
+               VALUES ($1, $2, $3, $4, $5, $5, 45)`,
+              [userId, qTypeIds.DAILY_CHECKIN, JSON.stringify(responses), ciScore, date]
+            );
+          }
+        }
+
         // 5. Contexto ativo: deadline de trabalho nos últimos 14 dias
         const ctxResult = await client.query(`SELECT id FROM context_types WHERE code = 'work_deadline'`);
         if (ctxResult.rows.length > 0) {
@@ -150,26 +167,48 @@ class DemoController {
           );
         }
 
-        // 6. Snapshot inicial de risco (Risco Elevado) para o dashboard ter algo a mostrar de imediato
-        const riskLevel = await client.query(
-          `SELECT id FROM risk_levels WHERE code = 'elevated_risk' LIMIT 1`
-        );
-        if (riskLevel.rows.length > 0) {
-          await client.query(
-            `INSERT INTO risk_assessments
-              (user_id, risk_level_id, assessment_date, risk_score, confidence_level,
-               contributing_signals, signal_convergence_count, primary_explanation, secondary_factors,
-               requires_professional_review)
-             VALUES ($1, $2, CURRENT_DATE, 68, 0.85, $3, 3,
-                     'Estresse percebido elevado (PSS 28/40) combinado com queda de HRV (-32%) e sono fragmentado nas últimas 2 semanas',
-                     $4, TRUE)`,
-            [
-              userId,
-              riskLevel.rows[0].id,
-              JSON.stringify(['HRV', 'sleep_quality', 'stress_level', 'mood']),
-              JSON.stringify(['PSS-10: 28/40', 'GAD-7: 14/21', 'Contexto: deadline ativo'])
-            ]
-          );
+        // 6. Popula 30 risk_assessments diários para o MoodCalendar e tendência preditiva
+        const levelsResult = await client.query(`SELECT id, code FROM risk_levels`);
+        const levelIds = {};
+        levelsResult.rows.forEach(r => { levelIds[r.code] = r.id; });
+
+        for (let dayIndex = 30; dayIndex >= 0; dayIndex--) {
+          const d = degradation(dayIndex);
+          const score = Math.round(Math.min(85, Math.max(15, 25 + d * 50 + (Math.random() - 0.5) * 6)));
+          const levelCode =
+            score >= 75 ? 'high_risk' :
+            score >= 60 ? 'elevated_risk' :
+            score >= 30 ? 'attention' : 'stable';
+          const levelId = levelIds[levelCode] ?? levelIds['attention'];
+          const dateObj = new Date(); dateObj.setDate(dateObj.getDate() - dayIndex);
+          dateObj.setHours(12, 0, 0, 0);
+          const dateStr = dateObj.toISOString().slice(0, 10);
+
+          // Snapshot mais rico só pro dia de hoje
+          if (dayIndex === 0) {
+            await client.query(
+              `INSERT INTO risk_assessments
+                (user_id, risk_level_id, assessment_date, assessment_timestamp, risk_score, confidence_level,
+                 contributing_signals, signal_convergence_count, primary_explanation, secondary_factors,
+                 requires_professional_review)
+               VALUES ($1, $2, $3, $4, 68, 0.85, $5, 3,
+                       'Estresse percebido elevado (PSS 28/40) combinado com queda de HRV (-32%) e sono fragmentado nas últimas 2 semanas',
+                       $6, TRUE)`,
+              [
+                userId, levelIds['elevated_risk'], dateStr, dateObj,
+                JSON.stringify(['HRV', 'sleep_quality', 'stress_level', 'mood']),
+                JSON.stringify(['PSS-10: 28/40', 'GAD-7: 14/21', 'Contexto: deadline ativo'])
+              ]
+            );
+          } else {
+            await client.query(
+              `INSERT INTO risk_assessments
+                (user_id, risk_level_id, assessment_date, assessment_timestamp, risk_score, confidence_level,
+                 signal_convergence_count, requires_professional_review)
+               VALUES ($1, $2, $3, $4, $5, 0.75, 2, FALSE)`,
+              [userId, levelId, dateStr, dateObj, score]
+            );
+          }
         }
 
         return userId;
@@ -194,7 +233,7 @@ class DemoController {
             baselineStatus: 'active',
           },
           token,
-          message: '30 dias de dados populados para demonstração',
+          message: '30 dias de dados populados para demonstracao',
         },
       });
     } catch (error) {

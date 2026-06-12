@@ -273,6 +273,13 @@ export default function Enterprise() {
                 <button className="text-xs font-semibold px-3 py-2 rounded-lg" style={{ background: 'var(--jade)', color: '#001b18' }}>Sim, agendar</button>
                 <button className="text-xs font-semibold px-3 py-2 rounded-lg" style={{ background: 'var(--bg-raised)', color: 'var(--text-pri)' }}>Agora não</button>
               </div>
+              <a
+                href="/teams-preview"
+                className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold hover:opacity-80 transition"
+                style={{ color: 'var(--jade)' }}
+              >
+                Ver mockup completo da interface Teams →
+              </a>
             </div>
           </div>
         </section>

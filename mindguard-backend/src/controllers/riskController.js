@@ -69,8 +69,8 @@ class RiskController {
          FROM risk_assessments ra
          JOIN risk_levels rl ON ra.risk_level_id = rl.id
          WHERE ra.user_id = $1
-           AND ra.assessment_timestamp >= NOW() - ($2 * INTERVAL '1 day')
-         ORDER BY ra.assessment_timestamp DESC
+           AND ra.assessment_date >= CURRENT_DATE - $2::int
+         ORDER BY ra.assessment_date DESC, ra.assessment_timestamp DESC
          LIMIT $3`,
         [userId, parseInt(days), parseInt(limit)]
       );

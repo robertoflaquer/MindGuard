@@ -117,6 +117,13 @@ class DemoController {
         }
 
         // 4. Popula questionários (PSS há 5 dias, GAD-7 há 3 dias)
+        // Garante DAILY_CHECKIN existe (pode faltar em DBs mais antigos)
+        await client.query(`
+          INSERT INTO questionnaire_types (code, name, description, frequency_days, question_count, max_score)
+          VALUES ('DAILY_CHECKIN', 'Check-in Diário', 'Avaliação rápida diária de humor, energia e estresse', 1, 3, 30)
+          ON CONFLICT (code) DO NOTHING
+        `);
+
         const qTypes = await client.query(`SELECT id, code FROM questionnaire_types`);
         const qTypeIds = {};
         qTypes.rows.forEach((r) => { qTypeIds[r.code] = r.id; });
@@ -168,9 +175,23 @@ class DemoController {
         }
 
         // 6. Popula 30 risk_assessments diários para o MoodCalendar e tendência preditiva
+        // Garante que risk_levels existam mesmo que o seed não tenha rodado
+        await client.query(`
+          INSERT INTO risk_levels (code, name, severity_order, color_code, description) VALUES
+            ('stable',        'Estável',         1, '#22c55e', 'Todos os sinais dentro do padrão normal'),
+            ('attention',     'Atenção',         2, '#f59e0b', 'Alguns desvios detectados — fique atento'),
+            ('elevated_risk', 'Risco Elevado',   3, '#f97316', 'Múltiplos sinais alterados — ação recomendada'),
+            ('high_risk',     'Risco Alto',      4, '#ef4444', 'Risco significativo — revisão profissional necessária')
+          ON CONFLICT (code) DO UPDATE SET
+            name       = EXCLUDED.name,
+            color_code = EXCLUDED.color_code
+        `);
+
         const levelsResult = await client.query(`SELECT id, code FROM risk_levels`);
         const levelIds = {};
         levelsResult.rows.forEach(r => { levelIds[r.code] = r.id; });
+
+        if (!levelIds['elevated_risk']) throw new Error('risk_levels seed failed — elevated_risk not found');
 
         for (let dayIndex = 30; dayIndex >= 0; dayIndex--) {
           const d = degradation(dayIndex);

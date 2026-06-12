@@ -23,6 +23,52 @@ Você está a 4 dias da apresentação. Backend, frontend, Python engine, deploy
 
 ---
 
+## 🏁 CHECKPOINT — 11/jun/2026 (qui à noite)
+
+**Git tag**: `checkpoint-2026-06-11-pre-features` (commit `d96774d`)
+**Como voltar**: `git checkout checkpoint-2026-06-11-pre-features` (somente leitura) ou `git reset --hard checkpoint-2026-06-11-pre-features` (destrutivo, com confirmação)
+
+### Estado atual do produto
+
+Tudo abaixo está em produção e funcionando:
+
+- **Demo robusto**: 30 dias de daily check-ins + 30 risk_assessments diários + sinais biométricos + contexto de deadline. Demo agora faz `upsert` defensivo de `risk_levels` e `DAILY_CHECKIN` dentro da transação, então nunca falha silenciosamente mesmo em DBs sem seed.
+- **MoodCalendar populado**: query `/api/risk/history` agora filtra por `assessment_date >= CURRENT_DATE - $2::int` (era `assessment_timestamp` com multiplicação de INTERVAL, que tinha ambiguidade de tipo).
+- **Insights expandidos**: 13 tipos de recomendação (era 5) — sleep, breathing, meditation, journaling, social connection, work-deadline Pomodoro, GAD-7 refill, PSS refill, progresso reconhecido, FC repouso elevada, movimento por níveis (< 4k e < 7k), consulta profissional, primeiro questionário.
+- **BreathingExercise**: contagem 3-2-1 antes de iniciar (círculo a 0.75 → 1.35 suave).
+- **Ícones limpos**: Apple Health e Galaxy Watch agora são SVG Lucide-style (não mais emojis 🍎 / ⌚).
+- **Streak roxo**: badge `#A78BFA` com chama preenchida.
+- **MedicoView**: `formatSignal()` com `parseFloat` resolve numéricos retornando como string. HRV/HR_resting 0 casas, sleep 1 casa, steps integer com `toLocaleString('pt-BR')`.
+- **Travessões**: regra consolidada — manter em separadores (título→subtítulo, autor→fonte, rótulo→valor); remover apenas em prosa corrida.
+
+### Commits desde último checkpoint
+
+```
+d96774d fix(demo): robust risk_levels upsert + expanded insights recommendations
+e66ed59 fix(sprint3): demo data, breathing UX, icones limpos, streak roxo, formatSignal
+0485589 docs+polish: estrategia final apresentacao + Welcome polimentos
+6108c5b docs: update Fase3 plan with all completed fixes
+2d946ec fix(sprint3): streak accuracy, trend layout redesign, MedicoView polish
+4cb4f41 feat(sprint3): predictive risk trend + dashboard polish
+722d82f feat(sprint3): MedicoView, BreathingExercise, MoodCalendar, streak
+a3565c0 feat(sprint3): Apple Health SAX parser, mobile responsive, UX fixes
+```
+
+### O que ainda falta (em ordem)
+
+| # | Feature | Esforço | Status |
+|---|---------|---------|--------|
+| F1 | Card "Insights inteligentes" no Dashboard | 1.5h | pendente |
+| F5 | Push notification simulada (toast iOS) | 30 min | pendente |
+| F2 | Login médico (doutor@careplus.com → pacientes) | 2.5h | pendente |
+| F2.5 | Bot Teams mock visual (`/teams-preview`) | 1h | pendente |
+| F3 | PDF Export do MedicoView (jsPDF + html2canvas) | 1.5h | pendente |
+| F4 | QR Code "compartilhar com médico" | 30 min | pendente |
+| Doc | APRESENTACAO.md (roteiro de pitch) | 3h | pendente |
+| Ensaio | Rodar pitch 3× cronometrado | 2h+ | pendente |
+
+---
+
 ## 🟢 O QUE ESTÁ BOM — NÃO MEXER
 
 | Item | Por quê |

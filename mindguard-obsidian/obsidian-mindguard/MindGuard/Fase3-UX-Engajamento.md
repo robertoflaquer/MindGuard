@@ -32,6 +32,24 @@ status: concluído
 | 15 | 🟡 Fix | Médico movido para nav header (como Empresa) | `Dashboard.jsx` | ✅ 2d946ec |
 | 16 | 🟡 Fix | Risk score com muitas casas decimais | `MedicoView.jsx` Math.round() | ✅ 2d946ec |
 | 17 | ⭐ Fix | Média 7 dias por sinal na Área do Médico | `MedicoView.jsx` | ✅ 2d946ec |
+| 18 | 🔴 Bug | Streak mostrando 90 (timestamp era data histórica) | `signalController.js` (created_at + UNION questionnaire_responses) | ✅ e66ed59 |
+| 19 | 🟢 Feature | Demo 30 daily check-ins + 30 risk_assessments | `demoController.js` | ✅ e66ed59 |
+| 20 | 🟡 UX | BreathingExercise contagem 3-2-1 antes de iniciar | `BreathingExercise.jsx` | ✅ e66ed59 |
+| 21 | 🟡 UX | Ícones Apple Health + Galaxy Watch SVG Lucide-style | `Dashboard.jsx`, `Connect.jsx` | ✅ e66ed59 |
+| 22 | 🟡 UX | Streak badge roxo `#A78BFA` com chama preenchida | `Dashboard.jsx` | ✅ e66ed59 |
+| 23 | 🔴 Bug | MedicoView valores não arredondados (DB retorna numeric como string) | `MedicoView.jsx` (`formatSignal` com parseFloat) | ✅ e66ed59 |
+| 24 | 🟡 UX | Travessões em prosa removidos (regra: manter em separadores) | Welcome, Enterprise, Connect, Metodologia | ✅ e66ed59 |
+| 25 | 🔴 Bug | MoodCalendar quase vazio — getHistory filtro com tipo ambíguo | `riskController.js` (assessment_date >= CURRENT_DATE - $2::int) | ✅ d96774d |
+| 26 | 🔴 Bug | Demo podia falhar silenciosamente se seed risk_levels não rodou | `demoController.js` (upsert defensivo + throw explícito) | ✅ d96774d |
+| 27 | ⭐ Feature | Insights expandidos: 13 tipos de recomendação (era 5) | `insightsService.js` | ✅ d96774d |
+
+---
+
+## 🏁 CHECKPOINT — `checkpoint-2026-06-11-pre-features` (commit `d96774d`)
+
+Marco antes de implementar features F1-F5 da Apresentacao-Estrategia. Tudo acima funcionando em produção. Detalhes completos em [[Apresentacao-Estrategia#🏁 CHECKPOINT — 11/jun/2026 (qui à noite)]].
+
+**Próximas features**: F1 Insights card → F5 Push notification → F2 Login médico → F2.5 Teams mock → F3 PDF export → F4 QR Code.
 
 ---
 

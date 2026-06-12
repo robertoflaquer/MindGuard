@@ -171,6 +171,13 @@ Base de conhecimento estruturada do projeto MindGuard — plataforma de monitora
 
 ---
 
+### 1️⃣5️⃣ [[APRESENTACAO-Roteiro]] ⭐
+**Para**: Roteiro completo do pitch — fala por fala, com Q&A preparado e glossário técnico
+**Contém**: estrutura 10 min cronometrada, demo cena-a-cena, 12 perguntas anticipadas com respostas, glossário (CRÍTICO/IMPORTANTE/NICE-TO-HAVE), priorização de estudo dia-a-dia, plano B, frases de impacto pra memorizar
+**Leia se**: É o documento principal pra preparar a apresentação de 15/jun — leia inteiro até sábado
+
+---
+
 ### 1️⃣2️⃣ [[Fase2-Sprint-Final]]
 **Para**: Plano de execução do Sprint Final (9–15/jun/2026)
 **Contém**:

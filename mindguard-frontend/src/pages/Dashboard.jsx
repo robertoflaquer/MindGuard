@@ -38,6 +38,7 @@ import {
   Award,
   Footprints,
   HeartPulse,
+  QrCode,
 } from 'lucide-react'
 import { useThemeStore } from '../store/useThemeStore'
 import RiskCard from '../components/RiskCard'
@@ -47,6 +48,7 @@ import SignalChart from '../components/SignalChart'
 import BreathingExercise from '../components/BreathingExercise'
 import MoodCalendar from '../components/MoodCalendar'
 import PushNotificationDemo from '../components/PushNotificationDemo'
+import ShareWithDoctor from '../components/ShareWithDoctor'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import api from '../services/api'
@@ -203,6 +205,7 @@ export default function Dashboard() {
   const [wearableStatus, setWearableStatus] = useState(null)
   const [streak, setStreak] = useState(0)
   const [showBreathing, setShowBreathing] = useState(false)
+  const [showShare, setShowShare] = useState(false)
   const [trend, setTrend] = useState(null)
   const { isDark, toggle: toggleTheme } = useThemeStore()
 
@@ -473,7 +476,7 @@ export default function Dashboard() {
             )}
 
             {/* Quick action cards row */}
-            <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <section className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <button
                 onClick={() => navigate('/relatorio-semanal')}
                 className="text-left rounded-2xl p-4 flex items-center gap-3 transition-all"
@@ -506,6 +509,24 @@ export default function Dashboard() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold" style={{ color: 'var(--text-pri)' }}>Respiração</p>
                   <p className="text-xs mt-0.5 hidden sm:block" style={{ color: 'var(--text-muted)' }}>Box breathing · 48s</p>
+                </div>
+                <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
+              </button>
+
+              <button
+                onClick={() => setShowShare(true)}
+                className="text-left rounded-2xl p-4 flex items-center gap-3 transition-all"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: '3px solid #818CF8' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-raised)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-card)' }}
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(129,140,248,0.14)' }}>
+                  <QrCode className="w-4 h-4" style={{ color: '#818CF8' }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold" style={{ color: 'var(--text-pri)' }}>Compartilhar com médico</p>
+                  <p className="text-xs mt-0.5 hidden sm:block" style={{ color: 'var(--text-muted)' }}>QR Code · acesso 15 min</p>
                 </div>
                 <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
               </button>
@@ -712,6 +733,13 @@ export default function Dashboard() {
 
       {showBreathing && (
         <BreathingExercise onClose={() => setShowBreathing(false)} />
+      )}
+
+      {showShare && (
+        <ShareWithDoctor
+          onClose={() => setShowShare(false)}
+          patientName={user?.fullName || 'Roberto Silva'}
+        />
       )}
 
       <PushNotificationDemo

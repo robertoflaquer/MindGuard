@@ -1,7 +1,9 @@
 // src/pages/MedicoView.jsx
 // Doctor-facing patient summary — read-only view for clinical review
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 import { useAuthStore } from '../store/useAuthStore'
 import { useThemeStore } from '../store/useThemeStore'
 import api from '../services/api'
@@ -117,6 +119,50 @@ export default function MedicoView() {
   const [contexts, setContexts] = useState([])
   const [appts,    setAppts]    = useState([])
   const [loading,  setLoading]  = useState(true)
+  const [exporting, setExporting] = useState(false)
+  const pdfRef = useRef(null)
+
+  async function handleExportPDF() {
+    if (!pdfRef.current || exporting) return
+    setExporting(true)
+    try {
+      const element = pdfRef.current
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-deep').trim() || '#0a0e1a',
+        windowWidth: element.scrollWidth,
+      })
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+      const pageWidth  = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+      const margin = 10
+      const usableWidth = pageWidth - margin * 2
+      const imgHeight = (canvas.height * usableWidth) / canvas.width
+
+      let heightLeft = imgHeight
+      let position = margin
+      pdf.addImage(imgData, 'PNG', margin, position, usableWidth, imgHeight, undefined, 'FAST')
+      heightLeft -= (pageHeight - margin * 2)
+
+      while (heightLeft > 0) {
+        position = margin - (imgHeight - heightLeft)
+        pdf.addPage()
+        pdf.addImage(imgData, 'PNG', margin, position, usableWidth, imgHeight, undefined, 'FAST')
+        heightLeft -= (pageHeight - margin * 2)
+      }
+
+      const today = new Date().toISOString().slice(0, 10)
+      const patientSlug = (user?.name || 'paciente').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30)
+      pdf.save(`MindGuard_${patientSlug}_${today}.pdf`)
+    } catch (err) {
+      console.error('PDF export failed', err)
+      alert('Não foi possível gerar o PDF. Tente novamente.')
+    } finally {
+      setExporting(false)
+    }
+  }
 
   useEffect(() => {
     if (!user) { navigate('/login'); return }
@@ -192,12 +238,14 @@ export default function MedicoView() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => window.print()}
-              className="hidden sm:flex items-center gap-1.5 btn-ghost px-3 py-2 rounded-xl text-xs font-semibold"
+              onClick={handleExportPDF}
+              disabled={exporting || loading}
+              className="flex items-center gap-1.5 btn-ghost px-3 py-2 rounded-xl text-xs font-semibold disabled:opacity-50"
               style={{ color: 'var(--jade)', border: '1px solid rgba(45,212,191,0.25)' }}
+              title="Baixar resumo clínico em PDF"
             >
               <Printer className="w-3.5 h-3.5" />
-              Exportar
+              {exporting ? 'Gerando...' : 'Exportar PDF'}
             </button>
             <button onClick={toggleTheme} className="btn-ghost p-2 rounded-xl">
               {isDark ? <Sun className="w-4 h-4" style={{ color: 'var(--attn)' }} /> : <Moon className="w-4 h-4" style={{ color: 'var(--accent)' }} />}
@@ -206,7 +254,7 @@ export default function MedicoView() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <main ref={pdfRef} className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {loading ? (
           <div className="flex items-center justify-center py-20 gap-3" style={{ color: 'var(--text-muted)' }}>
             <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />

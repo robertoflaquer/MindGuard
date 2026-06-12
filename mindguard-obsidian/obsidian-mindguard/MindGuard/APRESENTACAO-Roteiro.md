@@ -54,9 +54,9 @@ Você vai apresentar um produto **funcionando em produção** (Railway), com **a
 
 **Fala (texto sugerido)**:
 
-> "Boa noite. Da última vez que conversamos, mostrei o MindGuard ainda como protótipo: um algoritmo de risco, um dashboard básico e a defesa científica do modelo.
+> "Boa noite. Da última vez que conversamos, mostrei o MindGuard ainda como um protótipo avançado.
 >
-> Nesses últimos 30 dias, três coisas mudaram. **Primeira**: o produto está em produção, rodando agora na Railway, e qualquer um pode acessar pelo link da demo. **Segunda**: implementamos a integração real com Apple Watch, processando até 250 megabytes de export do Apple Health. **Terceira**: construímos o portal do médico, a integração com Microsoft Teams, exportação clínica em PDF e compartilhamento por QR Code.
+> Nesses últimos dias, algumas coisas mudaram. **Primeira**: o produto está em produção, rodando agora na Railway, e qualquer um pode acessar pelo link da demo. **Segunda**: implementamos a integração real com Apple Watch, processando até 250 megabytes de export do Apple Health. **Terceira**: construímos o portal do médico, a integração com Microsoft Teams, exportação clínica em PDF e compartilhamento por QR Code.
 >
 > O que vou mostrar agora é: por que essas cinco mudanças transformam o MindGuard de protótipo acadêmico em produto pronto pra ir ao mercado."
 

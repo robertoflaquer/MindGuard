@@ -68,7 +68,7 @@ Vá em **Variables** e adicione:
 
 ```
 NODE_ENV=production
-JWT_SECRET=mindguard2025fiapcareplusblua32chars
+JWT_SECRET=<gere-uma-string-aleatoria-de-32-caracteres-ex-com-openssl-rand-hex-32>
 JWT_EXPIRES_IN=7d
 LOG_LEVEL=info
 PYTHON_API_URL=    ← deixar em branco por enquanto

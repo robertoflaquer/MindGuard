@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '../store/useAuthStore'
 import {
   Activity, Brain, ShieldCheck, LineChart, Watch, Sparkles,
-  ArrowRight, PlayCircle, AlertCircle, Heart
+  ArrowRight, PlayCircle, AlertCircle, Heart, Stethoscope
 } from 'lucide-react'
 
 function MindGuardLogo({ size = 40 }) {
@@ -28,6 +28,20 @@ export default function Welcome() {
     try {
       await loginDemo()
       navigate('/dashboard')
+    } catch (e) {
+      setDemoError('Não foi possível carregar a demo. Tente em alguns segundos.')
+    } finally {
+      setDemoLoading(false)
+    }
+  }
+
+  const handleDoctorDemo = async () => {
+    setDemoLoading(true)
+    setDemoError('')
+    try {
+      await loginDemo()
+      sessionStorage.setItem('mg_doctor_mode', '1')
+      navigate('/medico/pacientes')
     } catch (e) {
       setDemoError('Não foi possível carregar a demo. Tente em alguns segundos.')
     } finally {
@@ -105,6 +119,20 @@ export default function Welcome() {
             Criar conta
             <ArrowRight className="w-4 h-4" />
           </Link>
+        </div>
+
+        {/* Doctor demo secondary CTA */}
+        <div className="mt-4 animate-fade-up">
+          <button
+            onClick={handleDoctorDemo}
+            disabled={demoLoading}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm rounded-full transition hover:opacity-80"
+            style={{ background: 'rgba(129,140,248,0.10)', border: '1px solid rgba(129,140,248,0.30)', color: '#818CF8' }}
+          >
+            <Stethoscope className="w-3.5 h-3.5" />
+            Modo médico (portal CarePlus)
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {demoError && (

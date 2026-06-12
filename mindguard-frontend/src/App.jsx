@@ -15,6 +15,7 @@ import Metodologia from './pages/Metodologia'
 import WeeklyReport from './pages/WeeklyReport'
 import Connect from './pages/Connect'
 import MedicoView from './pages/MedicoView'
+import MedicoPacientes from './pages/MedicoPacientes'
 import Toast from './components/Toast'
 import ErrorBoundary from './components/ErrorBoundary'
 
@@ -93,6 +94,14 @@ export default function App() {
             element={
               <PrivateRoute>
                 <MedicoView />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/medico/pacientes"
+            element={
+              <PrivateRoute>
+                <MedicoPacientes />
               </PrivateRoute>
             }
           />

@@ -172,14 +172,21 @@ export default function MedicoView() {
         style={{ background: 'var(--header-blur)', backdropFilter: 'blur(16px)', borderBottom: '1px solid var(--border)' }}>
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
-            <button onClick={() => navigate('/dashboard')} className="btn-ghost p-2 rounded-xl flex-shrink-0">
+            <button
+              onClick={() => {
+                const isDoctor = sessionStorage.getItem('mg_doctor_mode') === '1'
+                navigate(isDoctor ? '/medico/pacientes' : '/dashboard')
+              }}
+              className="btn-ghost p-2 rounded-xl flex-shrink-0"
+              title={sessionStorage.getItem('mg_doctor_mode') === '1' ? 'Voltar para pacientes' : 'Voltar ao dashboard'}
+            >
               <ArrowLeft className="w-4 h-4" />
             </button>
             <MindGuardLogo />
             <div className="min-w-0">
               <span className="text-sm font-bold" style={{ color: 'var(--text-pri)' }}>Área do Médico</span>
               <span className="hidden sm:inline text-xs ml-2 font-medium" style={{ color: 'var(--text-muted)' }}>
-                · Resumo clínico do paciente
+                {sessionStorage.getItem('mg_doctor_mode') === '1' ? '· Roberto Silva · 34 anos' : '· Resumo clínico do paciente'}
               </span>
             </div>
           </div>

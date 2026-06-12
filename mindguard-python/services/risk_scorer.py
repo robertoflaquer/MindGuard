@@ -24,6 +24,14 @@ PSS_LOW_MAX      = 13   # 0-13  → baixo
 PSS_MODERATE_MAX = 26   # 14-26 → moderado
 PSS_MAX          = 40   # 27-40 → alto
 
+# ── GAD-7 (Spitzer, 2006) — escala 0-3 por item, 7 itens, max=21 ──
+GAD7_MAX         = 21
+GAD7_MIN         = 4    # 0-4   → ansiedade mínima
+GAD7_MODERATE    = 9    # 5-9   → leve
+GAD7_HIGH        = 14   # 10-14 → moderada
+GAD7_FORCE_ELEV  = 10   # ≥10 (moderada clínica) → pelo menos elevated_risk
+GAD7_FORCE_HIGH  = 15   # ≥15 (grave clínica) → high_risk
+
 # ── CBI — escala 0-4 por item, 19 itens, max=76 ──────────
 CBI_MAX          = 76
 CBI_MODERATE     = 29   # 38 %
@@ -45,8 +53,10 @@ DC_HIGH          = 20   # 67 %
 DC_FORCE_ELEV    = 18   # 60 % → pelo menos elevated_risk
 DC_FORCE_HIGH    = 24   # 80 % → high_risk
 
-# Pesos por questionário (normalizados para os disponíveis)
-QUESTIONNAIRE_WEIGHTS = {'PSS': 0.45, 'CBI': 0.27, 'OLBI': 0.18, 'DAILY_CHECKIN': 0.10}
+# Pesos por questionário (normalizados para os disponíveis).
+# PSS+GAD7+CBI+OLBI somam 1.0 (documentado na METODOLOGIA).
+# DAILY_CHECKIN entra com peso adicional opcional quando disponível.
+QUESTIONNAIRE_WEIGHTS = {'PSS': 0.45, 'GAD7': 0.25, 'CBI': 0.20, 'OLBI': 0.10, 'DAILY_CHECKIN': 0.10}
 
 
 class RiskScorer:
@@ -63,7 +73,8 @@ class RiskScorer:
     def calculate_risk(self, user_id: str):
         """
         Calcula risco combinando questionários (70%) + sinais vitais (30%).
-        Pesos dos questionários: PSS=50%, CBI=30%, OLBI=20% (normalizados).
+        Pesos dos questionários: PSS=45%, GAD-7=25%, CBI=20%, OLBI=10%
+        (normalizados sobre os disponíveis). DAILY_CHECKIN entra opcional (+10%).
         """
         # ── 1. Sinais vitais ──────────────────────────────
         correlation = self.correlation_engine.correlate_signals(user_id)
@@ -83,11 +94,12 @@ class RiskScorer:
 
         # ── 2. Questionários ──────────────────────────────
         pss_data  = self._get_questionnaire_score(user_id, 'PSS',           7)
+        gad_data  = self._get_questionnaire_score(user_id, 'GAD7',         14)
         cbi_data  = self._get_questionnaire_score(user_id, 'CBI',          14)
         olbi_data = self._get_questionnaire_score(user_id, 'OLBI',         14)
         dc_data   = self._get_questionnaire_score(user_id, 'DAILY_CHECKIN', 1)
 
-        questionnaire_risk = self._get_combined_questionnaire_risk(pss_data, cbi_data, olbi_data, dc_data)
+        questionnaire_risk = self._get_combined_questionnaire_risk(pss_data, gad_data, cbi_data, olbi_data, dc_data)
         has_questionnaire  = questionnaire_risk is not None
 
         # ── 3. Combinação ────────────────────────────────
@@ -108,7 +120,7 @@ class RiskScorer:
 
         # ── 5. Nível de risco ────────────────────────────
         risk_level = self._determine_risk_level(
-            final_risk, convergence_count, pss_data, cbi_data, olbi_data, dc_data
+            final_risk, convergence_count, pss_data, gad_data, cbi_data, olbi_data, dc_data
         )
 
         # ── 6. Explicação ────────────────────────────────
@@ -117,17 +129,18 @@ class RiskScorer:
             convergence_count=convergence_count,
             contributing_signals=contributing_signals,
             pss_data=pss_data,
+            gad_data=gad_data,
             cbi_data=cbi_data,
             olbi_data=olbi_data,
             dc_data=dc_data,
         )
 
         # ── 7. Ação recomendada ──────────────────────────
-        recommended_action = self._get_recommended_action(risk_level, pss_data, cbi_data, olbi_data)
+        recommended_action = self._get_recommended_action(risk_level, pss_data, gad_data, cbi_data, olbi_data)
 
         # ── 8. Confiança ─────────────────────────────────
         confidence_level = self._calculate_confidence(
-            convergence_count, contributing_signals, pss_data, cbi_data, olbi_data, dc_data
+            convergence_count, contributing_signals, pss_data, gad_data, cbi_data, olbi_data, dc_data
         )
 
         # ── 9. Salvar ────────────────────────────────────
@@ -156,6 +169,7 @@ class RiskScorer:
             'recommended_action': recommended_action,
             'contributing_signals': contributing_signals,
             'pss_score':  pss_data['score']  if pss_data  else None,
+            'gad7_score': gad_data['score']  if gad_data  else None,
             'cbi_score':  cbi_data['score']  if cbi_data  else None,
             'olbi_score': olbi_data['score'] if olbi_data else None,
             'dc_score':   dc_data['score']   if dc_data   else None,
@@ -196,6 +210,15 @@ class RiskScorer:
         else:
             return 65 + ((pss - PSS_MODERATE_MAX) / (PSS_MAX - PSS_MODERATE_MAX)) * 35
 
+    def _gad7_to_risk_score(self, gad: float) -> float:
+        """GAD-7 0-21 → risco 0-100 (thresholds Spitzer 2006)."""
+        if gad <= GAD7_MIN:
+            return (gad / GAD7_MIN) * 25
+        elif gad <= GAD7_MODERATE:
+            return 25 + ((gad - GAD7_MIN) / (GAD7_MODERATE - GAD7_MIN)) * 40
+        else:
+            return 65 + ((gad - GAD7_MODERATE) / (GAD7_MAX - GAD7_MODERATE)) * 35
+
     def _cbi_to_risk_score(self, cbi: float) -> float:
         """CBI 0-76 → risco 0-100."""
         if cbi <= CBI_MODERATE:
@@ -223,10 +246,11 @@ class RiskScorer:
         else:
             return 65 + ((dc - DC_HIGH) / (DC_MAX - DC_HIGH)) * 35
 
-    def _get_combined_questionnaire_risk(self, pss_data, cbi_data, olbi_data, dc_data=None):
+    def _get_combined_questionnaire_risk(self, pss_data, gad_data, cbi_data, olbi_data, dc_data=None):
         """Combina os scores disponíveis com pesos normalizados."""
         available = {}
         if pss_data:  available['PSS']           = self._pss_to_risk_score(pss_data['score'])
+        if gad_data:  available['GAD7']          = self._gad7_to_risk_score(gad_data['score'])
         if cbi_data:  available['CBI']           = self._cbi_to_risk_score(cbi_data['score'])
         if olbi_data: available['OLBI']          = self._olbi_to_risk_score(olbi_data['score'])
         if dc_data:   available['DAILY_CHECKIN'] = self._daily_checkin_to_risk_score(dc_data['score'])
@@ -242,13 +266,21 @@ class RiskScorer:
     # ────────────────────────────────────────────────────── #
 
     def _determine_risk_level(self, risk_score: float, convergence_count: int,
-                               pss_data, cbi_data, olbi_data, dc_data=None):
+                               pss_data, gad_data, cbi_data, olbi_data, dc_data=None):
         # PSS: forçar elevação
         if pss_data:
             pss = pss_data['score']
             if pss >= 33:
                 return 'high_risk'
             if pss >= 27 and risk_score < self.attention_threshold:
+                return 'elevated_risk'
+
+        # GAD-7: forçar elevação (Spitzer 2006)
+        if gad_data:
+            gad = gad_data['score']
+            if gad >= GAD7_FORCE_HIGH:
+                return 'high_risk'
+            if gad >= GAD7_FORCE_ELEV and risk_score < self.attention_threshold:
                 return 'elevated_risk'
 
         # CBI: forçar elevação
@@ -307,7 +339,7 @@ class RiskScorer:
 
     def _generate_explanation(self, risk_level: str, convergence_count: int,
                                contributing_signals: dict,
-                               pss_data, cbi_data, olbi_data, dc_data=None):
+                               pss_data, gad_data, cbi_data, olbi_data, dc_data=None):
         secondary = []
 
         # Fatores de questionários
@@ -328,6 +360,17 @@ class RiskScorer:
                 secondary.append(f"PSS {pss:.0f}/40 — estresse percebido moderado")
             else:
                 secondary.append(f"PSS {pss:.0f}/40 — estresse percebido elevado")
+
+        if gad_data:
+            gad = gad_data['score']
+            if gad <= GAD7_MIN:
+                secondary.append(f"GAD-7 {gad:.0f}/21 — ansiedade mínima")
+            elif gad <= GAD7_MODERATE:
+                secondary.append(f"GAD-7 {gad:.0f}/21 — ansiedade leve")
+            elif gad <= GAD7_HIGH:
+                secondary.append(f"GAD-7 {gad:.0f}/21 — ansiedade moderada")
+            else:
+                secondary.append(f"GAD-7 {gad:.0f}/21 — ansiedade grave")
 
         if cbi_data:
             cbi = cbi_data['score']
@@ -366,7 +409,7 @@ class RiskScorer:
                     secondary.append(f"✓ {name}: {direction_pt} de {pct:.1f}% (melhora)")
 
         # Sinaliza quando o risco é predominantemente dirigido por questionários
-        has_questionnaire_data = any([pss_data, cbi_data, olbi_data, dc_data])
+        has_questionnaire_data = any([pss_data, gad_data, cbi_data, olbi_data, dc_data])
         signal_risk_is_low = len(risky_signals) == 0
 
         # Explicação principal — prioridade: CBI/OLBI alto > PSS alto > sinais > questionários
@@ -427,14 +470,15 @@ class RiskScorer:
     #  AÇÃO RECOMENDADA
     # ────────────────────────────────────────────────────── #
 
-    def _get_recommended_action(self, risk_level: str, pss_data, cbi_data, olbi_data):
+    def _get_recommended_action(self, risk_level: str, pss_data, gad_data, cbi_data, olbi_data):
         high_stress  = pss_data  and pss_data['score']  >= PSS_MODERATE_MAX + 1
+        high_anxiety = gad_data  and gad_data['score']  >= GAD7_FORCE_ELEV
         high_burnout = (
             (cbi_data  and cbi_data['score']  >= CBI_HIGH) or
             (olbi_data and olbi_data['score'] >= OLBI_HIGH)
         )
 
-        if high_stress or high_burnout:
+        if high_stress or high_anxiety or high_burnout:
             action_mapping = {
                 'stable':        'meditation_short',
                 'attention':     'meditation_short',
@@ -460,9 +504,9 @@ class RiskScorer:
     # ────────────────────────────────────────────────────── #
 
     def _calculate_confidence(self, convergence_count: int, contributing_signals: dict,
-                               pss_data, cbi_data, olbi_data, dc_data=None) -> float:
+                               pss_data, gad_data, cbi_data, olbi_data, dc_data=None) -> float:
         signal_count = len(contributing_signals)
-        q_count = sum(1 for d in [pss_data, cbi_data, olbi_data, dc_data] if d is not None)
+        q_count = sum(1 for d in [pss_data, gad_data, cbi_data, olbi_data, dc_data] if d is not None)
 
         if q_count >= 3:
             base = 0.85

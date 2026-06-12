@@ -58,14 +58,124 @@ a3565c0 feat(sprint3): Apple Health SAX parser, mobile responsive, UX fixes
 
 | # | Feature | Esforço | Status |
 |---|---------|---------|--------|
-| F1 | Card "Insights inteligentes" no Dashboard | 1.5h | pendente |
-| F5 | Push notification simulada (toast iOS) | 30 min | pendente |
-| F2 | Login médico (doutor@careplus.com → pacientes) | 2.5h | pendente |
-| F2.5 | Bot Teams mock visual (`/teams-preview`) | 1h | pendente |
-| F3 | PDF Export do MedicoView (jsPDF + html2canvas) | 1.5h | pendente |
-| F4 | QR Code "compartilhar com médico" | 30 min | pendente |
+| F1 | Card "Insights inteligentes" no Dashboard | 1.5h | ✅ d8236de |
+| F5 | Push notification simulada (toast iOS) | 30 min | ✅ d8236de |
+| F2 | Login médico (doutor@careplus.com → pacientes) | 2.5h | ✅ 77bd99c |
+| F2.5 | Bot Teams mock visual (`/teams-preview`) | 1h | ✅ 95619b7 |
+| F3 | PDF Export do MedicoView (jsPDF + html2canvas) | 1.5h | ✅ f4650c3 |
+| F4 | QR Code "compartilhar com médico" | 30 min | ✅ f4650c3 |
 | Doc | APRESENTACAO.md (roteiro de pitch) | 3h | pendente |
 | Ensaio | Rodar pitch 3× cronometrado | 2h+ | pendente |
+
+---
+
+## 🎬 FEATURES F1–F5 — ENTREGUES 11/jun (qui à noite)
+
+Todas as features foram entregues numa única sessão após o checkpoint
+`checkpoint-2026-06-11-pre-features`. Cada uma testada via `npm run build`.
+
+### F1 — Card "Sua semana em 1 frase" (Dashboard) — `d8236de`
+
+**Onde**: topo da aba Visão Geral, acima do Status de Risco.
+
+**Visual**: gradient roxo/jade com Sparkles icon. Mostra:
+- Período da semana ("5 jun–11 jun")
+- Summary da semana (gerado pelo `_buildWeeklyNarrative` no backend)
+- "Foco da semana" com TrendingUp (jade)
+- CTA "Ver análise completa →" → /relatorio-semanal
+
+**Bonus — Recomendações reformuladas**:
+- 5 cards (era 3), com ícones Lucide por tipo (era emojis)
+- 11 tipos suportados: sleep, breathing, meditation, journaling, social,
+  context, achievement, hydration + os 5 originais
+- Botão "Começar" para breathing immediate dispara o BreathingExercise
+
+### F5 — Push notification iOS-style — `d8236de`
+
+**Arquivo**: [Dashboard.jsx](mindguard-frontend/src/components/PushNotificationDemo.jsx)
+
+**Visual**: toast top-center estilo iOS lockscreen
+- Blur + backdrop (rgba 28,28,30 + saturate 180%)
+- Slide spring entrance (cubic-bezier 0.34, 1.56, 0.64, 1)
+- MindGuard logo gradient + título + body + chip "agora"
+- Botão X dispensar
+
+**Lógica**:
+- Aparece 10s após mount, auto-dismiss 12s, cooldown 5min/sessão
+- Conteúdo contextual: se `risk_score >= 60` → CTA respiração;
+  caso contrário → CTA check-in diário
+- Tap dispara `setShowBreathing(true)` ou `setActiveTab('signals')`
+
+### F2 — Portal Médico (`/medico/pacientes`) — `77bd99c`
+
+**Arquivo**: [MedicoPacientes.jsx](mindguard-frontend/src/pages/MedicoPacientes.jsx)
+
+**Visual**:
+- Header "Portal Médico · Dra. Helena Rodrigues"
+- 3 stat cards (Total, Em risco, Pendentes)
+- Search bar visual (readOnly)
+- 3 patient cards com avatar+anel de risco circular, summary clínico
+  e flags (revisão profissional, queda HRV, questionário devido)
+
+**Fluxo**:
+1. Welcome → botão "Modo médico (portal CarePlus)" → loginDemo +
+   sessionStorage `mg_doctor_mode=1` → /medico/pacientes
+2. Click em Roberto Silva (= demo user) → /medico (MedicoView)
+3. Click em Maria ou João → alert "Demo limitada"
+4. MedicoView detecta `mg_doctor_mode` e ajusta back button + subtítulo
+
+### F2.5 — Teams mock visual (`/teams-preview`) — `95619b7`
+
+**Arquivo**: [TeamsPreview.jsx](mindguard-frontend/src/pages/TeamsPreview.jsx)
+
+**Visual**: mockup pixel-perfect do Microsoft Teams
+- Left rail (Chat, Equipes, Calendar, Calls, Files)
+- Chat list lateral com 5 contatos (Equipe Apollo, Helena, MindGuard ativo,
+  CarePlus RH, Coach)
+- Chat window com bot MindGuard
+
+**Roteiro**:
+- 7 mensagens revelado progressivamente com typing dots de 1.8s entre cada
+- Bot manda check-in matinal → user responde "Cansado" → bot envia
+  Adaptive Card com 3 botões → user pede exercício → bot inicia box breathing
+- Footer LGPD: "MindGuard nunca compartilha conteúdo individual com a empresa"
+
+**Acesso**: link "Ver mockup completo da interface Teams →" no Enterprise.jsx
+
+### F3 — PDF Export do MedicoView — `f4650c3`
+
+**Implementação**: jsPDF 4.2.1 + html2canvas 1.4.1
+
+**Função**:
+- `<main>` envolto em `pdfRef`
+- `handleExportPDF` chama html2canvas (scale 2x), gera PNG, página A4
+  portrait com margins 10mm, page break manual para conteúdo longo
+- Filename: `MindGuard_roberto-silva-demo_2026-06-11.pdf`
+
+**Botão**: "Exportar PDF" substitui o `window.print` antigo, com estado
+"Gerando..." durante a captura. Visível inclusive em mobile.
+
+### F4 — Compartilhar com médico (QR Code) — `f4650c3`
+
+**Implementação**: qrcode.react 4.2.0
+
+**Visual**: modal com:
+- QR Code 200px com logo MindGuard centralizado (imageSettings.excavate)
+- Encoda `<origin>/medico/pacientes`
+- Código de acesso `CP-RBT-XXXXX` (5 chars random) + "Expira em 15 min"
+- Botões: "Copiar link" (clipboard com feedback ✓) + "Enviar por e-mail" (alert demo)
+- Disclaimer LGPD
+
+**Acesso**: card "Compartilhar com médico · QR Code · acesso 15 min" no
+Dashboard (grid-cols-3 agora: Relatório + Respiração + Compartilhar).
+
+---
+
+## ⚠️ Atenção pós-F3/F4
+
+Bundle cresceu de ~900kb para ~1.5mb (jsPDF + html2canvas são pesados). Para
+a demo isso não importa porque o load inicial é ~440kb gzip. Se quiser
+otimizar futuramente, usar `import()` dinâmico no handler de exportPDF.
 
 ---
 

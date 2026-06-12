@@ -5,7 +5,7 @@ import { useInsightsStore } from '../store/useInsightsStore'
 import { useThemeStore } from '../store/useThemeStore'
 import {
   ArrowLeft, Sun, Moon, TrendingUp, TrendingDown, AlertCircle,
-  CheckCircle, Target, BookOpen, ChevronRight, Loader,
+  CheckCircle, Target, BookOpen, ChevronRight, Loader, Sparkles,
 } from 'lucide-react'
 
 function MindGuardLogo() {
@@ -95,34 +95,58 @@ export default function WeeklyReport() {
               </div>
             </section>
 
-            {/* Summary card */}
-            <section className="rounded-2xl p-5 animate-fade-up" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-sec)' }}>
-                {weeklyNarrative.summary}
-              </p>
-
-              {weeklyNarrative.positives?.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  {weeklyNarrative.positives.map((p, i) => (
-                    <div key={i} className="flex items-start gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--stable)' }} />
-                      <span style={{ color: 'var(--text-sec)' }}>{p}</span>
+            {/* AI Summary — sua semana em 1 frase */}
+            <section className="animate-fade-up">
+              <div
+                className="rounded-2xl p-5 relative overflow-hidden"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(167,139,250,0.10) 0%, rgba(45,212,191,0.08) 100%)',
+                  border: '1px solid rgba(167,139,250,0.28)',
+                }}
+              >
+                <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full" style={{ background: 'radial-gradient(circle, rgba(167,139,250,0.15), transparent 70%)' }} />
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(167,139,250,0.18)' }}>
+                      <Sparkles className="w-3.5 h-3.5" style={{ color: '#A78BFA' }} />
                     </div>
-                  ))}
+                    <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#A78BFA' }}>
+                      Sua semana em 1 frase
+                    </p>
+                  </div>
+                  <p className="text-base font-semibold leading-snug" style={{ color: 'var(--text-pri)' }}>
+                    {weeklyNarrative.summary}
+                  </p>
                 </div>
-              )}
-
-              {weeklyNarrative.highlights?.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  {weeklyNarrative.highlights.map((h, i) => (
-                    <div key={i} className="flex items-start gap-2 text-sm">
-                      <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--attn)' }} />
-                      <span style={{ color: 'var(--text-sec)' }}>{h}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              </div>
             </section>
+
+            {/* Positives + Highlights detalhados */}
+            {(weeklyNarrative.positives?.length > 0 || weeklyNarrative.highlights?.length > 0) && (
+              <section className="rounded-2xl p-5 animate-fade-up" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                {weeklyNarrative.positives?.length > 0 && (
+                  <div className="space-y-2">
+                    {weeklyNarrative.positives.map((p, i) => (
+                      <div key={i} className="flex items-start gap-2 text-sm">
+                        <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--stable)' }} />
+                        <span style={{ color: 'var(--text-sec)' }}>{p}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {weeklyNarrative.highlights?.length > 0 && (
+                  <div className={`${weeklyNarrative.positives?.length > 0 ? 'mt-3' : ''} space-y-2`}>
+                    {weeklyNarrative.highlights.map((h, i) => (
+                      <div key={i} className="flex items-start gap-2 text-sm">
+                        <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--attn)' }} />
+                        <span style={{ color: 'var(--text-sec)' }}>{h}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* Next week focus */}
             <section className="rounded-2xl p-5 animate-fade-up" style={{ background: 'rgba(45,212,191,0.08)', border: '1px solid rgba(45,212,191,0.25)' }}>

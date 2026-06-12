@@ -198,7 +198,7 @@ export default function Dashboard() {
   const { due, history, fetchDue, fetchHistory } = useQuestionnaireStore()
   const addToast = useToastStore((s) => s.addToast)
 
-  const { recommendations, weeklyNarrative, fetchInsights } = useInsightsStore()
+  const { recommendations, fetchInsights } = useInsightsStore()
 
   const [activeTab, setActiveTab] = useState('overview')
   const [showRiskModal, setShowRiskModal] = useState(false)
@@ -356,55 +356,6 @@ export default function Dashboard() {
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-fade-up">
-            {/* AI Insights — sua semana em 1 frase */}
-            {weeklyNarrative?.summary && (
-              <section>
-                <div
-                  className="rounded-2xl p-5 relative overflow-hidden"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(167,139,250,0.10) 0%, rgba(45,212,191,0.08) 100%)',
-                    border: '1px solid rgba(167,139,250,0.28)',
-                  }}
-                >
-                  <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full" style={{ background: 'radial-gradient(circle, rgba(167,139,250,0.15), transparent 70%)' }} />
-                  <div className="relative">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(167,139,250,0.18)' }}>
-                        <Sparkles className="w-3.5 h-3.5" style={{ color: '#A78BFA' }} />
-                      </div>
-                      <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#A78BFA' }}>
-                        Sua semana em 1 frase
-                      </p>
-                      {weeklyNarrative.period && (
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full ml-auto" style={{ background: 'var(--bg-card)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
-                          {weeklyNarrative.period}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-base font-semibold leading-snug mb-3" style={{ color: 'var(--text-pri)' }}>
-                      {weeklyNarrative.summary}
-                    </p>
-                    {weeklyNarrative.next_week_focus && (
-                      <div className="flex items-start gap-2 mt-3 pt-3" style={{ borderTop: '1px solid rgba(167,139,250,0.18)' }}>
-                        <TrendingUp className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: 'var(--jade)' }} />
-                        <p className="text-xs leading-relaxed" style={{ color: 'var(--text-sec)' }}>
-                          <span className="font-bold" style={{ color: 'var(--jade)' }}>Foco da semana: </span>
-                          {weeklyNarrative.next_week_focus}
-                        </p>
-                      </div>
-                    )}
-                    <button
-                      onClick={() => navigate('/relatorio-semanal')}
-                      className="mt-3 flex items-center gap-1 text-xs font-bold transition-opacity hover:opacity-80"
-                      style={{ color: '#A78BFA' }}
-                    >
-                      Ver análise completa <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </section>
-            )}
-
             {/* Risk Status */}
             <section>
               <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)' }}>

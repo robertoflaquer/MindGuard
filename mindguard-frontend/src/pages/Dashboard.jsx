@@ -30,6 +30,14 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
+  Sparkles,
+  Brain,
+  PenLine,
+  Users,
+  Briefcase,
+  Award,
+  Footprints,
+  HeartPulse,
 } from 'lucide-react'
 import { useThemeStore } from '../store/useThemeStore'
 import RiskCard from '../components/RiskCard'
@@ -38,6 +46,7 @@ import SignalForm from '../components/SignalForm'
 import SignalChart from '../components/SignalChart'
 import BreathingExercise from '../components/BreathingExercise'
 import MoodCalendar from '../components/MoodCalendar'
+import PushNotificationDemo from '../components/PushNotificationDemo'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import api from '../services/api'
@@ -187,7 +196,7 @@ export default function Dashboard() {
   const { due, history, fetchDue, fetchHistory } = useQuestionnaireStore()
   const addToast = useToastStore((s) => s.addToast)
 
-  const { recommendations, fetchInsights } = useInsightsStore()
+  const { recommendations, weeklyNarrative, fetchInsights } = useInsightsStore()
 
   const [activeTab, setActiveTab] = useState('overview')
   const [showRiskModal, setShowRiskModal] = useState(false)
@@ -344,6 +353,55 @@ export default function Dashboard() {
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-fade-up">
+            {/* AI Insights — sua semana em 1 frase */}
+            {weeklyNarrative?.summary && (
+              <section>
+                <div
+                  className="rounded-2xl p-5 relative overflow-hidden"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(167,139,250,0.10) 0%, rgba(45,212,191,0.08) 100%)',
+                    border: '1px solid rgba(167,139,250,0.28)',
+                  }}
+                >
+                  <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full" style={{ background: 'radial-gradient(circle, rgba(167,139,250,0.15), transparent 70%)' }} />
+                  <div className="relative">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(167,139,250,0.18)' }}>
+                        <Sparkles className="w-3.5 h-3.5" style={{ color: '#A78BFA' }} />
+                      </div>
+                      <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#A78BFA' }}>
+                        Sua semana em 1 frase
+                      </p>
+                      {weeklyNarrative.period && (
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full ml-auto" style={{ background: 'var(--bg-card)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
+                          {weeklyNarrative.period}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-base font-semibold leading-snug mb-3" style={{ color: 'var(--text-pri)' }}>
+                      {weeklyNarrative.summary}
+                    </p>
+                    {weeklyNarrative.next_week_focus && (
+                      <div className="flex items-start gap-2 mt-3 pt-3" style={{ borderTop: '1px solid rgba(167,139,250,0.18)' }}>
+                        <TrendingUp className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: 'var(--jade)' }} />
+                        <p className="text-xs leading-relaxed" style={{ color: 'var(--text-sec)' }}>
+                          <span className="font-bold" style={{ color: 'var(--jade)' }}>Foco da semana: </span>
+                          {weeklyNarrative.next_week_focus}
+                        </p>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => navigate('/relatorio-semanal')}
+                      className="mt-3 flex items-center gap-1 text-xs font-bold transition-opacity hover:opacity-80"
+                      style={{ color: '#A78BFA' }}
+                    >
+                      Ver análise completa <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </section>
+            )}
+
             {/* Risk Status */}
             <section>
               <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)' }}>
@@ -470,22 +528,53 @@ export default function Dashboard() {
                   </button>
                 </div>
                 <div className="space-y-2">
-                  {recommendations.slice(0, 3).map((rec, i) => {
-                    const ICONS = { sleep: '😴', breathing: '🧘', questionnaire: '📋', professional: '👨‍⚕️', movement: '🚶' }
-                    const COLORS = { high: 'var(--danger)', medium: 'var(--attn)', low: 'var(--stable)' }
+                  {recommendations.slice(0, 5).map((rec, i) => {
+                    const ICON_MAP = {
+                      sleep:         Moon,
+                      breathing:     Wind,
+                      meditation:    Brain,
+                      questionnaire: ClipboardList,
+                      professional:  Stethoscope,
+                      movement:      Footprints,
+                      journaling:    PenLine,
+                      social:        Users,
+                      context:       Briefcase,
+                      achievement:   Award,
+                      hydration:     HeartPulse,
+                    }
+                    const Icon = ICON_MAP[rec.type] || Sparkles
+                    const TYPE_COLORS = {
+                      sleep:         '#818CF8',
+                      breathing:     'var(--jade)',
+                      meditation:    '#A78BFA',
+                      questionnaire: '#FBBF24',
+                      professional:  'var(--accent)',
+                      movement:      '#34D399',
+                      journaling:    '#F472B6',
+                      social:        '#FB923C',
+                      context:       '#A78BFA',
+                      achievement:   '#FBBF24',
+                    }
+                    const tintColor = TYPE_COLORS[rec.type] || 'var(--jade)'
+                    const PRIORITY_COLORS = { high: 'var(--danger)', medium: 'var(--attn)', low: 'var(--stable)' }
                     return (
                       <div key={i} className="rounded-xl px-4 py-3 flex items-center gap-3"
-                        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: `2px solid ${COLORS[rec.priority] || 'var(--jade)'}` }}>
-                        <span className="text-lg leading-none flex-shrink-0">{ICONS[rec.type] || '✨'}</span>
+                        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: `3px solid ${PRIORITY_COLORS[rec.priority] || 'var(--jade)'}` }}>
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${tintColor}22` }}>
+                          <Icon className="w-4 h-4" style={{ color: tintColor }} />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-pri)' }}>{rec.title}</p>
                           <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{rec.action}</p>
                         </div>
                         {rec.action_type === 'questionnaire' && (
-                          <button onClick={() => navigate('/questionnaires')} className="text-xs font-semibold flex-shrink-0" style={{ color: 'var(--jade)' }}>Fazer</button>
+                          <button onClick={() => navigate('/questionnaires')} className="text-xs font-semibold flex-shrink-0 px-3 py-1.5 rounded-lg" style={{ color: 'var(--jade)', background: 'rgba(45,212,191,0.10)' }}>Fazer</button>
                         )}
                         {rec.action_type === 'appointment' && (
-                          <button onClick={() => navigate('/treatment')} className="text-xs font-semibold flex-shrink-0" style={{ color: 'var(--jade)' }}>Agendar</button>
+                          <button onClick={() => navigate('/treatment')} className="text-xs font-semibold flex-shrink-0 px-3 py-1.5 rounded-lg" style={{ color: 'var(--jade)', background: 'rgba(45,212,191,0.10)' }}>Agendar</button>
+                        )}
+                        {rec.action_type === 'immediate' && rec.type === 'breathing' && (
+                          <button onClick={() => setShowBreathing(true)} className="text-xs font-semibold flex-shrink-0 px-3 py-1.5 rounded-lg" style={{ color: 'var(--jade)', background: 'rgba(45,212,191,0.10)' }}>Começar</button>
                         )}
                       </div>
                     )
@@ -624,6 +713,15 @@ export default function Dashboard() {
       {showBreathing && (
         <BreathingExercise onClose={() => setShowBreathing(false)} />
       )}
+
+      <PushNotificationDemo
+        risk={currentRisk}
+        onAction={() => {
+          const score = currentRisk ? parseFloat(currentRisk.risk_score) : 0
+          if (score >= 60) setShowBreathing(true)
+          else setActiveTab('signals')
+        }}
+      />
     </div>
   )
 }
